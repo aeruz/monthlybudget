@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Budget Planner (Locked)</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .sort-active { background-color: #f1f5f9; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // --- ICONS ---
+        const Icon = ({ path, className, size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{path}</svg>
+        );
+
+        const Icons = {
+            Plus: (props) => <Icon {...props} path={<><path d="M5 12h14"/><path d="M12 5v14"/></>} />,
+            Trash2: (props) => <Icon {...props} path={<><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>} />,
+            TrendingUp: (props) => <Icon {...props} path={<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>} />,
+            TrendingDown: (props) => <Icon {...props} path={<><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></>} />,
+            DollarSign: (props) => <Icon {...props} path={<><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>} />,
+            PieChart: (props) => <Icon {...props} path={<><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></>} />,
+            Save: (props) => <Icon {...props} path={<><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>} />,
+            AlertCircle: (props) => <Icon {...props} path={<><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>} />,
+            Calendar: (props) => <Icon {...props} path={<><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></>} />,
+            BarChart3: (props) => <Icon {...props} path={<><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></>} />,
+            Wallet: (props) => <Icon {...props} path={<><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></>} />,
+            Copy: (props) => <Icon {...props} path={<><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></>} />,
+            ClipboardPaste: (props) => <Icon {...props} path={<><path d="M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3a1 1 0 0 0-1-1Z"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M16 4h2a2 2 0 0 1 2 2v2M11 14h10"/><path d="m17 10 4 4-4 4"/></>} />,
+            Check: (props) => <Icon {...props} path={<><polyline points="20 6 9 17 4 12"/></>} />,
+            Circle: (props) => <Icon {...props} path={<><circle cx="12" cy="12" r="10"/></>} />,
+            CheckCircle: (props) => <Icon {...props} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />,
+            Edit2: (props) => <Icon {...props} path={<><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></>} />,
+            X: (props) => <Icon {...props} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />,
+            CreditCard: (props) => <Icon {...props} path={<><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></>} />,
+            Banknote: (props) => <Icon {...props} path={<><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></>} />,
+            Lock: (props) => <Icon {...props} path={<><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />,
+            Smartphone: (props) => <Icon {...props} path={<><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></>} />,
+            RefreshCw: (props) => <Icon {...props} path={<><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></>} />,
+            Flag: (props) => <Icon {...props} path={<><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></>} />,
+            ArrowUp: (props) => <Icon {...props} path={<><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></>} />,
+            ArrowDown: (props) => <Icon {...props} path={<><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></>} />,
+            ListPlus: (props) => <Icon {...props} path={<><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v6"/><path d="M21 12h-6"/></>} />,
+            Layers: (props) => <Icon {...props} path={<><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>} />,
+            Database: (props) => <Icon {...props} path={<><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></>} />,
+            Download: (props) => <Icon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>} />,
+            Upload: (props) => <Icon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>} />
+        };
+
+        const MONTHS = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        
+        const CREDIT_LIMITS = {
+            maya: 18000,
+            unionbank: 15000
+        };
+
+        const PRIORITIES = {
+            high: { color: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-500', label: 'High' },
+            medium: { color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-400', label: 'Med' },
+            low: { color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-200', label: 'Low' }
+        };
+
+        // --- COMPONENTS ---
+
+        const DataModal = ({ isOpen, onClose, onExport, onImport }) => {
+            if (!isOpen) return null;
+            const fileInputRef = useRef(null);
+
+            const handleImportClick = () => {
+                fileInputRef.current.click();
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <Icons.Database className="text-indigo-600" size={20} /> Data Options
+                            </h3>
+                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><Icons.X size={24} /></button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800">
+                                <p className="mb-2">Your budget data is saved automatically to this browser.</p>
+                                <p>To move data to another device or save a backup, use the options below.</p>
+                            </div>
+
+                            <button onClick={onExport} className="w-full flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600"><Icons.Download size={20} /></div>
+                                    <div className="text-left">
+                                        <p className="font-semibold text-slate-900">Export Backup</p>
+                                        <p className="text-xs text-slate-500">Save your data as a file</p>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <button onClick={handleImportClick} className="w-full flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600"><Icons.Upload size={20} /></div>
+                                    <div className="text-left">
+                                        <p className="font-semibold text-slate-900">Import Backup</p>
+                                        <p className="text-xs text-slate-500">Load data from a file</p>
+                                    </div>
+                                </div>
+                            </button>
+                            <input type="file" ref={fileInputRef} onChange={onImport} className="hidden" accept=".json" />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const IncomeModal = ({ isOpen, onClose, month, items, onUpdate }) => {
+            if (!isOpen) return null;
+            const total = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+            const handleChange = (id, field, value) => {
+                const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
+                onUpdate(newItems);
+            };
+            const handleDelete = (id) => { onUpdate(items.filter(item => item.id !== id)); };
+            const handleAdd = () => {
+                const newItem = { id: Date.now().toString(36) + Math.random().toString(36).substr(2), name: 'New Client/Project', amount: 0 };
+                onUpdate([...items, newItem]);
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-100">
+                            <div><h3 className="text-lg font-bold text-slate-900">Income Sources</h3><p className="text-sm text-slate-500">{month} 2026</p></div>
+                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1"><Icons.X size={24} /></button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                            {items.length === 0 ? (
+                                <div className="text-center py-8 text-slate-400">
+                                    <Icons.Wallet className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                    <p>No income sources added yet.</p>
+                                    <button onClick={handleAdd} className="mt-2 text-indigo-600 font-medium hover:underline">Add your first source</button>
+                                </div>
+                            ) : (
+                                items.map(item => (
+                                    <div key={item.id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                        <div className="flex-1">
+                                            <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:outline-none" placeholder="Source Name"/>
+                                        </div>
+                                        <div className="w-32">
+                                            <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-bold text-right text-emerald-600 focus:border-indigo-500 focus:outline-none" placeholder="0"/>
+                                        </div>
+                                        <button onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-1.5"><Icons.Trash2 size={18} /></button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-xl">
+                            <button onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-lg hover:border-indigo-400 hover:text-indigo-600 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Income Source</button>
+                            <div className="flex justify-between items-center text-lg font-bold text-slate-800"><span>Total Income</span><span className="text-emerald-600">₱{total.toLocaleString()}</span></div>
+                            <button onClick={onClose} className="w-full mt-4 bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ExtrasModal = ({ isOpen, onClose, month, items, onUpdate }) => {
+            if (!isOpen) return null;
+            const total = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+            const handleChange = (id, field, value) => {
+                const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
+                onUpdate(newItems);
+            };
+            const handleDelete = (id) => { onUpdate(items.filter(item => item.id !== id)); };
+            const handleAdd = () => {
+                const newItem = { 
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2), 
+                    name: 'Extra Item', 
+                    amount: 0,
+                    paymentMethod: 'cash'
+                };
+                onUpdate([...items, newItem]);
+            };
+
+            const cyclePaymentMethod = (id, currentMethod) => {
+                let nextMethod = 'cash';
+                if (currentMethod === 'cash') nextMethod = 'maya';
+                else if (currentMethod === 'maya') nextMethod = 'unionbank';
+                else if (currentMethod === 'unionbank') nextMethod = 'cash';
+                handleChange(id, 'paymentMethod', nextMethod);
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-amber-50 rounded-t-xl">
+                            <div><h3 className="text-lg font-bold text-amber-900">Extra Expenses</h3><p className="text-sm text-amber-700">{month} 2026</p></div>
+                            <button onClick={onClose} className="text-amber-700 hover:text-amber-900 p-1"><Icons.X size={24} /></button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                            {items.length === 0 ? (
+                                <div className="text-center py-8 text-slate-400">
+                                    <Icons.ListPlus className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                    <p>No extra expenses logged.</p>
+                                    <button onClick={handleAdd} className="mt-2 text-indigo-600 font-medium hover:underline">Add extra expense</button>
+                                </div>
+                            ) : (
+                                items.map(item => {
+                                    let methodIcon = <Icons.Banknote size={16} />;
+                                    let methodClass = "bg-slate-100 text-slate-400";
+                                    let methodTitle = "Cash";
+                                    if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={16} />; methodClass = "bg-slate-800 text-white"; methodTitle = "Maya"; }
+                                    else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={16} />; methodClass = "bg-orange-100 text-orange-600"; methodTitle = "UnionBank"; }
+
+                                    return (
+                                        <div key={item.id} className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                            <button onClick={() => cyclePaymentMethod(item.id, item.paymentMethod)} className={`p-1.5 rounded-md transition-all flex-shrink-0 ${methodClass}`} title={methodTitle}>{methodIcon}</button>
+                                            <div className="flex-1">
+                                                <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:outline-none" placeholder="Item Name"/>
+                                            </div>
+                                            <div className="w-24">
+                                                <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-bold text-right text-rose-600 focus:border-indigo-500 focus:outline-none" placeholder="0"/>
+                                            </div>
+                                            <button onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-1.5"><Icons.Trash2 size={18} /></button>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-xl">
+                            <button onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-lg hover:border-indigo-400 hover:text-indigo-600 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Extra Expense</button>
+                            <div className="flex justify-between items-center text-lg font-bold text-slate-800"><span>Total Extra</span><span className="text-rose-600">₱{total.toLocaleString()}</span></div>
+                            <button onClick={onClose} className="w-full mt-4 bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const YearlyAnalytics = ({ yearData, incomeData, extrasData }) => {
+            const yearlyStats = useMemo(() => {
+                let totalExpected = 0;
+                let totalActual = 0;
+                const monthlyData = MONTHS.map(month => {
+                    const items = yearData[month] || [];
+                    const extras = extrasData[month] || [];
+                    
+                    const incomeRaw = incomeData[month] || [];
+                    const income = Array.isArray(incomeRaw) ? incomeRaw.reduce((sum, i) => sum + (Number(i.amount) || 0), 0) : (Number(incomeRaw) || 0);
+                    
+                    const mExpected = items.reduce((sum, item) => sum + (Number(item.expected) || 0), 0);
+                    const mActualNormal = items.reduce((sum, item) => sum + (Number(item.actual) || 0), 0);
+                    const mActualExtras = extras.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+                    
+                    const mActual = mActualNormal + mActualExtras;
+
+                    totalExpected += mExpected;
+                    totalActual += mActual;
+                    return { month, expected: mExpected, actual: mActual, income };
+                });
+                return { monthlyData, totalExpected, totalActual };
+            }, [yearData, incomeData, extrasData]);
+
+            const maxMonthlyVal = Math.max(...yearlyStats.monthlyData.map(m => Math.max(m.actual, m.expected, m.income || 0)), 1000);
+            const pieTotal = Math.max(yearlyStats.totalExpected, yearlyStats.totalActual, 1);
+            const spentPercentage = Math.min((yearlyStats.totalActual / pieTotal) * 100, 100);
+            const pieColor = yearlyStats.totalActual > yearlyStats.totalExpected ? '#f43f5e' : '#10b981'; 
+
+            return (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col">
+                    <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2"><Icons.BarChart3 className="w-4 h-4" />2026 Spending Trend</h3>
+                    <div className="flex gap-4 text-xs font-medium">
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-indigo-200"></div> Budget</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> All Spending</div>
+                    </div>
+                    </div>
+                    <div className="flex-1 flex items-end justify-between gap-2 h-48">
+                    {yearlyStats.monthlyData.map((data, idx) => {
+                        const hExpected = (data.expected / maxMonthlyVal) * 100;
+                        const hActual = (data.actual / maxMonthlyVal) * 100;
+                        return (
+                        <div key={data.month} className="flex flex-col justify-end items-center w-full h-full group relative">
+                            <div className="flex items-end gap-1 h-full w-full justify-center px-0.5">
+                                <div className="w-1.5 sm:w-3 bg-indigo-200 rounded-t-sm transition-all duration-500" style={{ height: `${hExpected}%` }}></div>
+                                <div className={`w-1.5 sm:w-3 rounded-t-sm transition-all duration-500 ${data.actual > data.expected ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ height: `${hActual}%` }}></div>
+                            </div>
+                            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs rounded py-1 px-2 pointer-events-none z-10 whitespace-nowrap">
+                                <p className="font-bold">{data.month}</p>
+                                <p>Income: ₱{(data.income || 0).toLocaleString()}</p>
+                                <p>Budget: ₱{data.expected.toLocaleString()}</p>
+                                <p>Total Out: ₱{data.actual.toLocaleString()}</p>
+                            </div>
+                            <span className="text-[10px] sm:text-xs text-slate-400 mt-2 font-medium">{SHORT_MONTHS[idx]}</span>
+                        </div>
+                        );
+                    })}
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                    <h3 className="text-sm font-semibold text-slate-500 mb-6 uppercase tracking-wider flex items-center gap-2"><Icons.PieChart className="w-4 h-4" />Total Year Overview</h3>
+                    <div className="flex-1 flex flex-col items-center justify-center relative">
+                    <div className="w-40 h-40 rounded-full relative" style={{background: `conic-gradient(${pieColor} 0% ${spentPercentage}%, #e2e8f0 ${spentPercentage}% 100%)`}}>
+                        <div className="absolute inset-0 m-auto w-32 h-32 bg-white rounded-full flex flex-col items-center justify-center">
+                        <span className="text-xs text-slate-400 font-medium uppercase">Total Spent</span>
+                        <span className="text-lg font-bold text-slate-800">₱{yearlyStats.totalActual.toLocaleString(undefined, { maximumFractionDigits: 0, notation: "compact" })}</span>
+                        </div>
+                    </div>
+                    <div className="w-full mt-6 space-y-3">
+                        <div className="flex justify-between text-sm"><span className="text-slate-500">Total Budget (2026)</span><span className="font-semibold text-slate-700">₱{yearlyStats.totalExpected.toLocaleString()}</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-500">Remaining Budget</span><span className={`font-semibold ${yearlyStats.totalExpected - yearlyStats.totalActual < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>₱{(yearlyStats.totalExpected - yearlyStats.totalActual).toLocaleString()}</span></div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            );
+        };
+
+        const BudgetChart = ({ expected, actual }) => {
+            const maxVal = Math.max(expected, actual, 1);
+            // Ensure percentages are valid numbers
+            const expectedHeight = Math.max(0, Math.min(100, (expected / maxVal) * 100));
+            const actualHeight = Math.max(0, Math.min(100, (actual / maxVal) * 100));
+
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-64 flex flex-col">
+                    <h3 className="text-sm font-semibold text-slate-500 mb-6 uppercase tracking-wider flex items-center gap-2">
+                        <Icons.Wallet className="w-4 h-4" />Monthly Overview
+                    </h3>
+                    
+                    {/* Main Chart Container */}
+                    <div className="flex-1 flex items-end justify-around gap-8 px-4">
+                        
+                        {/* Expected Group */}
+                        <div className="w-full max-w-[100px] flex flex-col items-center gap-2 group">
+                            {/* Hover Value */}
+                            <div className="text-xs font-medium text-slate-500 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                ₱{expected.toLocaleString()}
+                            </div>
+                            
+                            {/* Bar Area - Fixed Height for Reference */}
+                            <div className="h-32 w-full flex items-end bg-gray-50 rounded-t-lg relative"> 
+                                <div 
+                                    className="w-full bg-indigo-500 rounded-t-lg transition-all duration-500 relative z-10" 
+                                    style={{ height: `${expectedHeight}%` }}
+                                ></div>
+                            </div>
+                            
+                            <span className="text-sm font-medium text-slate-600">Expected</span>
+                        </div>
+
+                        {/* Actual Group */}
+                        <div className="w-full max-w-[100px] flex flex-col items-center gap-2 group">
+                            <div className="text-xs font-medium text-slate-500 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                ₱{actual.toLocaleString()}
+                            </div>
+                            
+                            <div className="h-32 w-full flex items-end bg-gray-50 rounded-t-lg relative">
+                                <div 
+                                    className={`w-full rounded-t-lg transition-all duration-500 relative z-10 ${actual > expected ? 'bg-rose-500' : 'bg-emerald-500'}`} 
+                                    style={{ height: `${actualHeight}%` }}
+                                ></div>
+                            </div>
+                            
+                            <span className="text-sm font-medium text-slate-600">Cash+Extra</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const StatCard = ({ title, amount, type, icon: Icon, onEdit }) => {
+            const isNegative = amount < 0;
+            let colorClass = "text-slate-700";
+            if (type === 'balance') colorClass = isNegative ? "text-rose-600" : "text-emerald-600";
+            if (type === 'expense') colorClass = "text-rose-600";
+            if (type === 'income') colorClass = "text-emerald-600";
+            if (type === 'credit') colorClass = "text-orange-600";
+
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-start justify-between relative group">
+                <div className="w-full">
+                    <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium text-slate-500">{title}</p>
+                        {onEdit && (<button onClick={onEdit} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-indigo-600" title="Edit Details"><Icons.Edit2 size={14} /></button>)}
+                    </div>
+                    <div className="flex items-center">
+                        <h3 className={`text-2xl font-bold ${colorClass}`}>₱{Math.abs(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                    </div>
+                </div>
+                <div className={`p-3 rounded-lg ${type === 'balance' ? 'bg-blue-50 text-blue-600' : type === 'expense' ? 'bg-rose-50 text-rose-600' : type === 'credit' ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                    <Icon size={20} />
+                </div>
+                </div>
+            );
+        };
+
+        const CreditCardWidget = ({ title, used, limit, icon: Icon, colorClass, barColorClass }) => {
+            const percentage = Math.min((used / limit) * 100, 100);
+            const remaining = limit - used;
+            
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-2">
+                             <div className={`p-2 rounded-lg bg-slate-50 ${colorClass}`}>
+                                <Icon size={20} />
+                             </div>
+                             <div>
+                                <h3 className="font-bold text-slate-900">{title}</h3>
+                                <p className="text-xs text-slate-400">Global Usage (Yearly)</p>
+                             </div>
+                        </div>
+                        <div className="text-right">
+                             <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Available</span>
+                             <p className={`font-bold ${remaining < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                ₱{remaining.toLocaleString()}
+                             </p>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-slate-500">Used: <span className="font-semibold text-slate-800">₱{used.toLocaleString()}</span></span>
+                            <span className="text-xs text-slate-400">Limit: ₱{limit.toLocaleString()}</span>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                             <div 
+                                className={`h-full rounded-full transition-all duration-500 ${barColorClass}`}
+                                style={{ width: `${percentage}%` }}
+                             ></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const BillAlert = ({ type, amount, month, onAdd }) => (
+            <div className={`mb-6 p-4 rounded-xl border flex items-center justify-between ${type === 'maya' ? 'bg-slate-900 text-white border-slate-800' : 'bg-orange-50 text-orange-900 border-orange-200'}`}>
+                <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${type === 'maya' ? 'bg-slate-800' : 'bg-orange-100'}`}>
+                        {type === 'maya' ? <Icons.Smartphone size={20}/> : <Icons.CreditCard size={20}/>}
+                    </div>
+                    <div>
+                        <p className="font-bold text-sm">Outstanding {type === 'maya' ? 'Maya' : 'UnionBank'} Bill</p>
+                        <p className="text-xs opacity-80">You spent ₱{amount.toLocaleString()} in {month}.</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={onAdd}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${type === 'maya' ? 'bg-white text-slate-900 hover:bg-slate-200' : 'bg-orange-500 text-white hover:bg-orange-600'}`}
+                >
+                    Add Bill to Expenses
+                </button>
+            </div>
+        );
+
+        // --- MAIN APP ---
+        
+        function App() {
+            // AUTH STATE
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [passwordInput, setPasswordInput] = useState("");
+            const [authError, setAuthError] = useState(false);
+
+            const [selectedMonth, setSelectedMonth] = useState("January");
+            const [yearData, setYearData] = useState({});
+            const [incomeData, setIncomeData] = useState({});
+            const [extrasData, setExtrasData] = useState({}); // New State for Extras
+            const [loading, setLoading] = useState(true);
+            const [saving, setSaving] = useState(false);
+            const [clipboard, setClipboard] = useState(null);
+            const [copyStatus, setCopyStatus] = useState('');
+            const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
+            const [isExtrasModalOpen, setIsExtrasModalOpen] = useState(false); // New Modal State
+            const [isDataModalOpen, setIsDataModalOpen] = useState(false); // Data Export/Import Modal
+            
+            // SORT STATE
+            const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+
+            useEffect(() => {
+                const loadData = () => {
+                    try {
+                        const savedData = localStorage.getItem('budget_2026_data');
+                        const savedIncome = localStorage.getItem('budget_2026_income');
+                        const savedExtras = localStorage.getItem('budget_2026_extras');
+                        const savedClipboard = localStorage.getItem('budget_clipboard');
+                        
+                        if (savedData) setYearData(JSON.parse(savedData));
+                        if (savedIncome) {
+                            let parsedIncome = JSON.parse(savedIncome);
+                            Object.keys(parsedIncome).forEach(key => {
+                                if (typeof parsedIncome[key] === 'number') {
+                                    parsedIncome[key] = [{ id: 'legacy-' + key, name: 'Primary Income', amount: parsedIncome[key] }];
+                                }
+                            });
+                            setIncomeData(parsedIncome);
+                        }
+                        if (savedExtras) setExtrasData(JSON.parse(savedExtras));
+                        if (savedClipboard) setClipboard(JSON.parse(savedClipboard));
+                    } catch (e) { console.error("Error loading data", e); }
+                    setLoading(false);
+                };
+                setTimeout(loadData, 500);
+            }, []);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (passwordInput === "Leamsiodrocla1987") {
+                    setIsAuthenticated(true);
+                    setAuthError(false);
+                } else {
+                    setAuthError(true);
+                }
+            };
+
+            const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+            const saveDataToStorage = (newData, newIncomeData, newExtrasData) => {
+                setSaving(true);
+                if (newData) {
+                    setYearData(newData);
+                    localStorage.setItem('budget_2026_data', JSON.stringify(newData));
+                }
+                if (newIncomeData) {
+                    setIncomeData(newIncomeData);
+                    localStorage.setItem('budget_2026_income', JSON.stringify(newIncomeData));
+                }
+                if (newExtrasData) {
+                    setExtrasData(newExtrasData);
+                    localStorage.setItem('budget_2026_extras', JSON.stringify(newExtrasData));
+                }
+                setTimeout(() => setSaving(false), 600);
+            };
+
+            // --- DATA MANAGEMENT ---
+            const handleExport = () => {
+                const data = {
+                    yearData,
+                    incomeData,
+                    extrasData,
+                    timestamp: new Date().toISOString()
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `budget_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setIsDataModalOpen(false);
+            };
+
+            const handleImport = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (imported.yearData) {
+                            saveDataToStorage(imported.yearData, imported.incomeData, imported.extrasData);
+                            // Set state directly to reflect changes immediately
+                            setYearData(imported.yearData);
+                            if(imported.incomeData) setIncomeData(imported.incomeData);
+                            if(imported.extrasData) setExtrasData(imported.extrasData);
+                            alert("Data imported successfully!");
+                            setIsDataModalOpen(false);
+                        } else {
+                            alert("Invalid file format. Missing year data.");
+                        }
+                    } catch (err) {
+                        alert("Error reading file: " + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            const handleUpdateIncomeList = (newItems) => {
+                const newIncomeData = { ...incomeData, [selectedMonth]: newItems };
+                saveDataToStorage(null, newIncomeData, null);
+            }
+
+            const handleUpdateExtrasList = (newItems) => {
+                const newExtrasData = { ...extrasData, [selectedMonth]: newItems };
+                saveDataToStorage(null, null, newExtrasData);
+            }
+
+            const handleUpdateItem = (id, field, value) => {
+                const currentItems = yearData[selectedMonth] || [];
+                const updatedItems = currentItems.map(item => item.id === id ? { ...item, [field]: value } : item);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null);
+            };
+
+            const handleAddItem = () => {
+                const newItem = {
+                    id: generateId(),
+                    name: 'New Expense',
+                    day: '',
+                    status: 'pending',
+                    priority: 'low',
+                    paymentMethod: 'cash', 
+                    expected: 0,
+                    actual: 0,
+                    repaymentType: null 
+                };
+                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null);
+            };
+
+            const handleAddBill = (type, amount, prevMonthName) => {
+                const newItem = {
+                    id: generateId(),
+                    name: `${type === 'maya' ? 'Maya' : 'UnionBank'} Bill (${prevMonthName})`,
+                    day: 'Due',
+                    status: 'pending',
+                    priority: 'high',
+                    paymentMethod: 'cash', 
+                    expected: amount,
+                    actual: 0,
+                    repaymentType: type 
+                };
+                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null);
+            };
+
+            const handleDeleteItem = (id) => {
+                const updatedItems = (yearData[selectedMonth] || []).filter(item => item.id !== id);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null);
+            };
+
+            const cycleStatus = (id, currentStatus) => {
+                let nextStatus = 'pending';
+                if (!currentStatus || currentStatus === 'pending') nextStatus = 'ready';
+                else if (currentStatus === 'ready') nextStatus = 'paid';
+                else if (currentStatus === 'paid') nextStatus = 'pending';
+                
+                const currentItems = yearData[selectedMonth] || [];
+                const updatedItems = currentItems.map(item => {
+                    if (item.id === id) {
+                        return { 
+                            ...item, 
+                            status: nextStatus,
+                            isPaid: nextStatus === 'paid'
+                        };
+                    }
+                    return item;
+                });
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null);
+            };
+
+            const cyclePriority = (id, currentPriority) => {
+                let nextPriority = 'low';
+                if (!currentPriority || currentPriority === 'low') nextPriority = 'medium';
+                else if (currentPriority === 'medium') nextPriority = 'high';
+                else if (currentPriority === 'high') nextPriority = 'low';
+                handleUpdateItem(id, 'priority', nextPriority);
+            };
+
+            const cyclePaymentMethod = (id, currentMethod) => {
+                let nextMethod = 'cash';
+                if (currentMethod === 'cash' || !currentMethod) nextMethod = 'maya';
+                else if (currentMethod === 'maya') nextMethod = 'unionbank';
+                else if (currentMethod === 'unionbank') nextMethod = 'cash';
+                handleUpdateItem(id, 'paymentMethod', nextMethod);
+            };
+
+            const moveItem = (index, direction) => {
+                const items = [...(yearData[selectedMonth] || [])];
+                if (direction === 'up' && index > 0) {
+                    [items[index], items[index - 1]] = [items[index - 1], items[index]];
+                } else if (direction === 'down' && index < items.length - 1) {
+                    [items[index], items[index + 1]] = [items[index + 1], items[index]];
+                }
+                saveDataToStorage({ ...yearData, [selectedMonth]: items }, null, null);
+            };
+
+            const handleCopyMonth = () => {
+                const items = yearData[selectedMonth] || [];
+                const incomeItems = incomeData[selectedMonth] || [];
+                const extraItems = extrasData[selectedMonth] || [];
+                
+                if (items.length === 0 && incomeItems.length === 0 && extraItems.length === 0) return;
+                
+                const itemsToCopy = items.map(item => ({
+                    name: item.name,
+                    day: item.day || '',
+                    status: 'pending',
+                    priority: item.priority || 'low',
+                    paymentMethod: item.paymentMethod || 'cash', 
+                    expected: item.expected,
+                    actual: 0,
+                    repaymentType: item.repaymentType || null
+                }));
+                const incomeToCopy = incomeItems.map(inc => ({ name: inc.name, amount: inc.amount }));
+                const extrasToCopy = extraItems.map(ext => ({ name: ext.name, amount: ext.amount, paymentMethod: ext.paymentMethod }));
+                
+                const clipboardData = { source: selectedMonth, items: itemsToCopy, incomeItems: incomeToCopy, extrasItems: extrasToCopy };
+                
+                localStorage.setItem('budget_clipboard', JSON.stringify(clipboardData));
+                setClipboard(clipboardData);
+                setCopyStatus('copied');
+                setTimeout(() => setCopyStatus(''), 2000);
+            };
+
+            const handlePasteMonth = () => {
+                if (!clipboard) return;
+                let newData = null;
+                let newIncomeData = null;
+                let newExtrasData = null;
+
+                if (clipboard.items && clipboard.items.length > 0) {
+                    const newItems = clipboard.items.map(item => ({ ...item, id: generateId() }));
+                    newData = { ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), ...newItems] };
+                }
+                const currentIncome = incomeData[selectedMonth] || [];
+                if (clipboard.incomeItems && clipboard.incomeItems.length > 0 && currentIncome.length === 0) {
+                     const newIncomeItems = clipboard.incomeItems.map(inc => ({ id: generateId(), name: inc.name, amount: inc.amount }));
+                    newIncomeData = { ...incomeData, [selectedMonth]: newIncomeItems };
+                }
+                const currentExtras = extrasData[selectedMonth] || [];
+                if (clipboard.extrasItems && clipboard.extrasItems.length > 0 && currentExtras.length === 0) {
+                    const newExtrasItems = clipboard.extrasItems.map(ext => ({ id: generateId(), name: ext.name, amount: ext.amount, paymentMethod: ext.paymentMethod }));
+                    newExtrasData = { ...extrasData, [selectedMonth]: newExtrasItems };
+                }
+
+                if (newData || newIncomeData || newExtrasData) {
+                    saveDataToStorage(newData, newIncomeData, newExtrasData);
+                    setCopyStatus('pasted');
+                    setTimeout(() => setCopyStatus(''), 2000);
+                }
+            };
+
+            // --- SORTING LOGIC ---
+            const requestSort = (key) => {
+                let direction = 'asc';
+                if (sortConfig.key === key && sortConfig.direction === 'asc') {
+                    direction = 'desc';
+                } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+                    direction = null; 
+                }
+                setSortConfig({ key: direction ? key : null, direction });
+            };
+
+            const rawItems = yearData[selectedMonth] || [];
+            
+            const sortedItems = useMemo(() => {
+                let items = [...rawItems];
+                if (sortConfig.key && sortConfig.direction) {
+                    items.sort((a, b) => {
+                        let valA, valB;
+                        if (sortConfig.key === 'status') {
+                            const map = { pending: 1, ready: 2, paid: 3 };
+                            valA = map[a.status || (a.isPaid ? 'paid' : 'pending')] || 1;
+                            valB = map[b.status || (b.isPaid ? 'paid' : 'pending')] || 1;
+                        } else if (sortConfig.key === 'priority') {
+                            const map = { high: 3, medium: 2, low: 1 };
+                            valA = map[a.priority || 'low'] || 1;
+                            valB = map[b.priority || 'low'] || 1;
+                        } else if (sortConfig.key === 'paymentMethod') {
+                            valA = a.paymentMethod || 'cash';
+                            valB = b.paymentMethod || 'cash';
+                        } else if (sortConfig.key === 'day') {
+                            const numA = parseInt(a.day);
+                            const numB = parseInt(b.day);
+                            if (!isNaN(numA) && !isNaN(numB)) {
+                                valA = numA; valB = numB;
+                            } else {
+                                valA = a.day || ''; valB = b.day || '';
+                            }
+                        }
+                        
+                        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+                        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+                        return 0;
+                    });
+                }
+                return items;
+            }, [rawItems, sortConfig]);
+
+            const currentItems = sortedItems; 
+            const currentIncomeList = incomeData[selectedMonth] || [];
+            const currentTotalIncome = currentIncomeList.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+            
+            // EXTRAS DATA
+            const currentExtras = extrasData[selectedMonth] || [];
+            const totalExtrasAmount = currentExtras.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+            const globalCreditStats = useMemo(() => {
+                let mayaUsed = 0;
+                let unionUsed = 0;
+                let mayaPaid = 0;
+                let unionPaid = 0;
+
+                // Main items
+                Object.values(yearData).forEach(monthItems => {
+                    monthItems.forEach(item => {
+                        const actual = Number(item.actual) || 0;
+                        if (item.paymentMethod === 'maya') mayaUsed += actual;
+                        if (item.paymentMethod === 'unionbank') unionUsed += actual;
+                        if (item.repaymentType === 'maya') mayaPaid += actual;
+                        if (item.repaymentType === 'unionbank') unionPaid += actual;
+                    });
+                });
+
+                // Extras items
+                Object.values(extrasData).forEach(monthExtras => {
+                    monthExtras.forEach(item => {
+                        const amount = Number(item.amount) || 0;
+                        if (item.paymentMethod === 'maya') mayaUsed += amount;
+                        if (item.paymentMethod === 'unionbank') unionUsed += amount;
+                    });
+                });
+
+                return {
+                    mayaTotal: Math.max(0, mayaUsed - mayaPaid),
+                    unionTotal: Math.max(0, unionUsed - unionPaid)
+                };
+            }, [yearData, extrasData]);
+
+            const prevMonthAlerts = useMemo(() => {
+                const currentIndex = MONTHS.indexOf(selectedMonth);
+                if (currentIndex === 0) return { maya: 0, union: 0, prevMonth: '' }; 
+
+                const prevMonthName = MONTHS[currentIndex - 1];
+                const prevItems = yearData[prevMonthName] || [];
+                const prevExtras = extrasData[prevMonthName] || [];
+                
+                let prevMayaSpend = 0;
+                let prevUnionSpend = 0;
+
+                prevItems.forEach(item => {
+                    if (item.paymentMethod === 'maya') prevMayaSpend += (Number(item.actual) || 0);
+                    if (item.paymentMethod === 'unionbank') prevUnionSpend += (Number(item.actual) || 0);
+                });
+
+                prevExtras.forEach(item => {
+                    if (item.paymentMethod === 'maya') prevMayaSpend += (Number(item.amount) || 0);
+                    if (item.paymentMethod === 'unionbank') prevUnionSpend += (Number(item.amount) || 0);
+                });
+
+                const hasMayaBill = rawItems.some(i => i.repaymentType === 'maya' && i.name.includes(prevMonthName));
+                const hasUnionBill = rawItems.some(i => i.repaymentType === 'unionbank' && i.name.includes(prevMonthName));
+
+                return {
+                    maya: hasMayaBill ? 0 : prevMayaSpend,
+                    union: hasUnionBill ? 0 : prevUnionSpend,
+                    prevMonth: prevMonthName
+                };
+            }, [selectedMonth, yearData, extrasData, rawItems]);
+
+            const totals = useMemo(() => {
+                const mainTotals = currentItems.reduce((acc, item) => {
+                    const actual = (Number(item.actual) || 0);
+                    const method = item.paymentMethod || 'cash';
+                    
+                    let newAcc = {
+                        expected: acc.expected + (Number(item.expected) || 0),
+                        actual: acc.actual + (item.repaymentType ? 0 : actual), 
+                        cashFlow: acc.cashFlow + (method === 'cash' ? actual : 0)
+                    };
+                    return newAcc;
+                }, { expected: 0, actual: 0, cashFlow: 0 });
+
+                // Add extras to totals
+                const extrasTotals = currentExtras.reduce((acc, item) => {
+                    const amount = Number(item.amount) || 0;
+                    const method = item.paymentMethod || 'cash';
+                    return {
+                        actual: acc.actual + amount,
+                        cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0)
+                    };
+                }, { actual: 0, cashFlow: 0 });
+
+                return {
+                    expected: mainTotals.expected,
+                    actual: mainTotals.actual + extrasTotals.actual,
+                    cashFlow: mainTotals.cashFlow + extrasTotals.cashFlow
+                };
+            }, [currentItems, currentExtras]);
+
+            const cashRemaining = currentTotalIncome - totals.cashFlow;
+
+            if (!isAuthenticated) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+                        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+                            <div className="text-center mb-8">
+                                <div className="bg-indigo-600 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                    <Icons.Lock className="text-white" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-900">Budget Planner Locked</h2>
+                                <p className="text-slate-500 mt-2">Please enter your password to continue</p>
+                            </div>
+                            <form onSubmit={handleLogin} className="space-y-4">
+                                <div>
+                                    <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="Enter password" autoFocus />
+                                </div>
+                                {authError && (<p className="text-rose-500 text-sm text-center font-medium">Incorrect password. Please try again.</p>)}
+                                <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors">Unlock</button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="text-center animate-pulse"><div className="text-indigo-600 font-bold text-xl mb-2">Budget Planner</div><p className="text-slate-500">Loading...</p></div></div>;
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
+                    <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between items-center h-16">
+                                <div className="flex items-center gap-3"><div className="bg-indigo-600 p-2 rounded-lg"><Icons.Calendar className="w-5 h-5 text-white" /></div><h1 className="text-xl font-bold text-slate-900">2026 Budget</h1></div>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setIsDataModalOpen(true)} className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors" title="Backup/Restore Data"><Icons.Database size={18} /></button>
+                                    {saving ? <span className="text-xs text-slate-400 flex items-center gap-1">Saving...</span> : <span className="text-xs text-emerald-500 flex items-center gap-1 font-medium"><Icons.Save className="w-3 h-3" /> Saved</span>}
+                                </div>
+                            </div>
+                            <div className="flex overflow-x-auto no-scrollbar -mb-px pt-2 gap-1 pb-2 md:pb-0">
+                                {MONTHS.map(month => (
+                                    <button key={month} onClick={() => setSelectedMonth(month)} className={`whitespace-nowrap px-4 py-2 border-b-2 text-sm font-medium transition-colors ${selectedMonth === month ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}>{month}</button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <YearlyAnalytics yearData={yearData} incomeData={incomeData} extrasData={extrasData} />
+                        <div className="h-px bg-slate-200 mb-8"></div>
+                        <div className="flex items-center gap-2 mb-6"><h2 className="text-xl font-bold text-slate-800">{selectedMonth} Details</h2></div>
+                        
+                        {prevMonthAlerts.maya > 0 && (<BillAlert type="maya" amount={prevMonthAlerts.maya} month={prevMonthAlerts.prevMonth} onAdd={() => handleAddBill('maya', prevMonthAlerts.maya, prevMonthAlerts.prevMonth)} />)}
+                        {prevMonthAlerts.union > 0 && (<BillAlert type="unionbank" amount={prevMonthAlerts.union} month={prevMonthAlerts.prevMonth} onAdd={() => handleAddBill('unionbank', prevMonthAlerts.union, prevMonthAlerts.prevMonth)} />)}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <StatCard title="Total Income" amount={currentTotalIncome} type="income" icon={Icons.Wallet} onEdit={() => setIsIncomeModalOpen(true)} />
+                            <StatCard title="Cash on Hand" amount={cashRemaining} type="balance" icon={cashRemaining >= 0 ? Icons.TrendingUp : Icons.TrendingDown} />
+                            <CreditCardWidget title="Maya Credit" used={globalCreditStats.mayaTotal} limit={CREDIT_LIMITS.maya} icon={Icons.Smartphone} colorClass="text-slate-900" barColorClass="bg-slate-800" />
+                            <CreditCardWidget title="UnionBank" used={globalCreditStats.unionTotal} limit={CREDIT_LIMITS.unionbank} icon={Icons.CreditCard} colorClass="text-orange-500" barColorClass="bg-orange-500" />
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 space-y-6">
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 gap-4 sm:gap-0">
+                                        <h2 className="text-lg font-semibold text-slate-800">{selectedMonth} Expenses</h2>
+                                        <div className="flex items-center gap-2">
+                                            <button onClick={handleCopyMonth} className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${(currentItems.length === 0 && currentTotalIncome === 0) ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-indigo-600'}`}>{copyStatus === 'copied' ? <Icons.Check size={16} className="text-emerald-500"/> : <Icons.Copy size={16} />}<span className="hidden sm:inline">Copy</span></button>
+                                            {clipboard && (<button onClick={handlePasteMonth} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 text-sm font-medium rounded-lg transition-colors">{copyStatus === 'pasted' ? <Icons.Check size={16} /> : <Icons.ClipboardPaste size={16} />}<span className="hidden sm:inline">Paste</span></button>)}
+                                            <button onClick={() => setIsExtrasModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-amber-300 text-amber-600 hover:bg-amber-50 text-sm font-medium rounded-lg transition-colors ml-2"><Icons.ListPlus size={16} /> <span className="hidden sm:inline">Extras</span></button>
+                                            <button onClick={handleAddItem} className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors ml-2"><Icons.Plus size={16} /> <span className="hidden sm:inline">Add Item</span><span className="sm:hidden">Add</span></button>
+                                        </div>
+                                    </div>
+
+                                    {currentItems.length === 0 && currentExtras.length === 0 ? (
+                                        <div className="p-12 text-center text-slate-400 flex flex-col items-center"><div className="bg-slate-100 p-4 rounded-full mb-4"><Icons.DollarSign className="w-6 h-6 text-slate-400" /></div><p className="text-lg font-medium text-slate-600">No expenses yet</p></div>
+                                    ) : (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                                                        <th className={`px-3 py-3 font-semibold w-8 text-center cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'status' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('status')}>
+                                                            <div className="flex items-center justify-center gap-1">Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
+                                                        </th>
+                                                        <th className={`px-3 py-3 font-semibold w-10 text-center cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'priority' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('priority')}>
+                                                            <div className="flex items-center justify-center gap-1">Prio {sortConfig.key === 'priority' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
+                                                        </th>
+                                                        <th className={`px-3 py-3 font-semibold w-10 text-center cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'paymentMethod' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('paymentMethod')}>
+                                                            <div className="flex items-center justify-center gap-1">Via {sortConfig.key === 'paymentMethod' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
+                                                        </th>
+                                                        <th className={`px-3 py-3 font-semibold w-24 cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'day' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('day')}>
+                                                            <div className="flex items-center gap-1">Due Date {sortConfig.key === 'day' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
+                                                        </th>
+                                                        <th className="px-4 py-3 font-semibold min-w-[140px]">Expense Item</th>
+                                                        <th className="px-4 py-3 font-semibold text-right w-[15%]">Expected</th>
+                                                        <th className="px-4 py-3 font-semibold text-right w-[15%]">Actual</th>
+                                                        <th className="px-2 py-3 w-8"></th>
+                                                        <th className="px-1 py-3 w-6"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100">
+                                                    {currentItems.map((item, index) => {
+                                                        const status = item.status || (item.isPaid ? 'paid' : 'pending');
+                                                        const method = item.paymentMethod || 'cash';
+                                                        const priority = item.priority || 'low';
+                                                        const priorityStyle = PRIORITIES[priority];
+                                                        const isRepayment = !!item.repaymentType;
+                                                        
+                                                        let statusIcon = <Icons.Circle size={18} />;
+                                                        let statusClass = "bg-slate-100 text-slate-400 hover:bg-slate-200";
+                                                        if (status === 'ready') {
+                                                            statusIcon = <Icons.Wallet size={18} />;
+                                                            statusClass = "bg-blue-100 text-blue-600 hover:bg-blue-200";
+                                                        } else if (status === 'paid') {
+                                                            statusIcon = <Icons.CheckCircle size={18} />;
+                                                            statusClass = "bg-emerald-100 text-emerald-600 hover:bg-emerald-200";
+                                                        }
+
+                                                        let methodIcon = <Icons.Banknote size={18} />;
+                                                        let methodClass = "bg-slate-100 text-slate-400 hover:bg-slate-200";
+                                                        if (method === 'maya') {
+                                                            methodIcon = <Icons.Smartphone size={18} />;
+                                                            methodClass = "bg-slate-800 text-white hover:bg-slate-700";
+                                                        } else if (method === 'unionbank') {
+                                                            methodIcon = <Icons.CreditCard size={18} />;
+                                                            methodClass = "bg-orange-100 text-orange-600 hover:bg-orange-200";
+                                                        }
+
+                                                        return (
+                                                            <tr key={item.id} className={`group hover:bg-slate-50 transition-colors ${status === 'paid' ? 'bg-slate-50/50' : ''} ${isRepayment ? 'bg-indigo-50/30' : ''}`}>
+                                                                <td className="px-3 py-2 text-center">
+                                                                    <button onClick={() => cycleStatus(item.id, status)} className={`p-1.5 rounded-full transition-all ${statusClass}`} title="Toggle: Pending -> Ready -> Paid">{statusIcon}</button>
+                                                                </td>
+                                                                <td className="px-3 py-2 text-center">
+                                                                    <button onClick={() => cyclePriority(item.id, priority)} className={`p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border ${priorityStyle.border} ${priorityStyle.bg} ${priorityStyle.color} transition-all`}>{priorityStyle.label}</button>
+                                                                </td>
+                                                                <td className="px-3 py-2 text-center">
+                                                                    {!isRepayment && <button onClick={() => cyclePaymentMethod(item.id, method)} className={`p-1.5 rounded-md transition-all ${methodClass}`}>{methodIcon}</button>}
+                                                                    {isRepayment && <div className="p-1.5 rounded-md bg-indigo-100 text-indigo-600 flex justify-center"><Icons.RefreshCw size={18} /></div>}
+                                                                </td>
+                                                                <td className="px-3 py-2">
+                                                                    <input type="text" value={item.day || ''} onChange={(e) => handleUpdateItem(item.id, 'day', e.target.value)} placeholder="Due" className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-600 text-xs text-center font-medium placeholder-slate-300"/>
+                                                                </td>
+                                                                <td className="px-4 py-2">
+                                                                    <input type="text" value={item.name} onChange={(e) => handleUpdateItem(item.id, 'name', e.target.value)} placeholder="Rent, Groceries..." className={`w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-700 placeholder-slate-400 font-medium ${status === 'paid' ? 'text-slate-500' : ''} ${isRepayment ? 'font-bold text-indigo-900' : ''}`}/>
+                                                                </td>
+                                                                <td className="px-4 py-2">
+                                                                    <div className="relative"><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₱</span><input type="number" value={item.expected} onChange={(e) => handleUpdateItem(item.id, 'expected', parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 pl-3 py-1 text-right text-slate-700 font-mono text-sm"/></div>
+                                                                </td>
+                                                                <td className="px-4 py-2">
+                                                                    <div className="relative"><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₱</span>
+                                                                        <input type="number" value={item.actual} onChange={(e) => handleUpdateItem(item.id, 'actual', parseFloat(e.target.value) || 0)} className={`w-full bg-transparent border-0 border-b border-transparent focus:ring-0 pl-3 py-1 text-right font-mono text-sm ${method === 'maya' || method === 'unionbank' ? 'text-orange-600 font-bold' : isRepayment ? 'text-emerald-600 font-bold' : 'text-slate-700'}`}/>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-2 py-2 text-right"><button onClick={() => handleDeleteItem(item.id)} className="text-slate-300 hover:text-rose-500 transition-colors p-1"><Icons.Trash2 size={16} /></button></td>
+                                                                <td className="px-1 py-2 flex flex-col justify-center gap-1">
+                                                                    {!sortConfig.key && (
+                                                                        <>
+                                                                            {index > 0 && <button onClick={() => moveItem(index, 'up')} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"><Icons.ArrowUp size={14}/></button>}
+                                                                            {index < currentItems.length - 1 && <button onClick={() => moveItem(index, 'down')} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"><Icons.ArrowDown size={14}/></button>}
+                                                                        </>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                    {/* EXTRAS SUMMARY ROW */}
+                                                    {currentExtras.length > 0 && (
+                                                        <tr className="bg-amber-50/50 hover:bg-amber-50 cursor-pointer" onClick={() => setIsExtrasModalOpen(true)}>
+                                                            <td className="px-3 py-2 text-center">
+                                                                <div className="p-1.5 rounded-full bg-amber-100 text-amber-600 mx-auto w-min"><Icons.CheckCircle size={18} /></div>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center">
+                                                                <div className="p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border border-slate-200 text-slate-400 bg-white mx-auto flex items-center justify-center">-</div>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center">
+                                                                <div className="p-1.5 rounded-md bg-amber-100 text-amber-600 mx-auto w-min"><Icons.Layers size={18} /></div>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center"><span className="text-xs text-amber-700 font-medium">--</span></td>
+                                                            <td className="px-4 py-2">
+                                                                <span className="font-bold text-amber-900">Extra Expenses</span>
+                                                                <span className="text-xs text-amber-600 ml-2 font-normal">({currentExtras.length} items)</span>
+                                                            </td>
+                                                            <td className="px-4 py-2 text-right"><span className="text-slate-300 text-sm">-</span></td>
+                                                            <td className="px-4 py-2 text-right"><span className="font-bold text-amber-700 text-sm">₱{totalExtrasAmount.toLocaleString()}</span></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                    )}
+                                                    <tr className="bg-slate-50/80 font-semibold text-slate-700">
+                                                        <td colSpan="5" className="px-6 py-4">Total Cash Needed</td>
+                                                        <td className="px-4 py-4 text-right font-mono text-sm">₱{totals.expected.toLocaleString()}</td>
+                                                        <td className="px-4 py-4 text-right font-mono text-sm">₱{totals.actual.toLocaleString()}</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="lg:col-span-1 space-y-6"><BudgetChart expected={totals.expected} actual={totals.cashFlow} /></div>
+                        </div>
+                        <IncomeModal isOpen={isIncomeModalOpen} onClose={() => setIsIncomeModalOpen(false)} month={selectedMonth} items={currentIncomeList} onUpdate={handleUpdateIncomeList} />
+                        <ExtrasModal isOpen={isExtrasModalOpen} onClose={() => setIsExtrasModalOpen(false)} month={selectedMonth} items={currentExtras} onUpdate={handleUpdateExtrasList} />
+                        <DataModal isOpen={isDataModalOpen} onClose={() => setIsDataModalOpen(false)} onExport={handleExport} onImport={handleImport} />
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
