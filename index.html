@@ -63,6 +63,7 @@
             ArrowDown: (props) => <Icon {...props} path={<><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></>} />,
             ListPlus: (props) => <Icon {...props} path={<><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v6"/><path d="M21 12h-6"/></>} />,
             Layers: (props) => <Icon {...props} path={<><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>} />,
+            Gamepad2: (props) => <Icon {...props} path={<><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></>} />,
             Database: (props) => <Icon {...props} path={<><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></>} />,
             Download: (props) => <Icon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>} />,
             Upload: (props) => <Icon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>} />
@@ -263,13 +264,88 @@
             );
         };
 
-        const YearlyAnalytics = ({ yearData, incomeData, extrasData }) => {
+        const GamesModal = ({ isOpen, onClose, month, items, onUpdate }) => {
+            if (!isOpen) return null;
+            const total = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+            const handleChange = (id, field, value) => {
+                const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
+                onUpdate(newItems);
+            };
+            const handleDelete = (id) => { onUpdate(items.filter(item => item.id !== id)); };
+            const handleAdd = () => {
+                const newItem = { 
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2), 
+                    name: 'Game Purchase', 
+                    amount: 0,
+                    paymentMethod: 'cash'
+                };
+                onUpdate([...items, newItem]);
+            };
+
+            const cyclePaymentMethod = (id, currentMethod) => {
+                let nextMethod = 'cash';
+                if (currentMethod === 'cash') nextMethod = 'maya';
+                else if (currentMethod === 'maya') nextMethod = 'unionbank';
+                else if (currentMethod === 'unionbank') nextMethod = 'cash';
+                handleChange(id, 'paymentMethod', nextMethod);
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-purple-50 rounded-t-xl">
+                            <div><h3 className="text-lg font-bold text-purple-900">Game Expenses</h3><p className="text-sm text-purple-700">{month} 2026</p></div>
+                            <button onClick={onClose} className="text-purple-700 hover:text-purple-900 p-1"><Icons.X size={24} /></button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                            {items.length === 0 ? (
+                                <div className="text-center py-8 text-slate-400">
+                                    <Icons.Gamepad2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                    <p>No game expenses logged.</p>
+                                    <button onClick={handleAdd} className="mt-2 text-indigo-600 font-medium hover:underline">Add game expense</button>
+                                </div>
+                            ) : (
+                                items.map(item => {
+                                    let methodIcon = <Icons.Banknote size={16} />;
+                                    let methodClass = "bg-slate-100 text-slate-400";
+                                    let methodTitle = "Cash";
+                                    if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={16} />; methodClass = "bg-slate-800 text-white"; methodTitle = "Maya"; }
+                                    else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={16} />; methodClass = "bg-orange-100 text-orange-600"; methodTitle = "UnionBank"; }
+
+                                    return (
+                                        <div key={item.id} className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                            <button onClick={() => cyclePaymentMethod(item.id, item.paymentMethod)} className={`p-1.5 rounded-md transition-all flex-shrink-0 ${methodClass}`} title={methodTitle}>{methodIcon}</button>
+                                            <div className="flex-1">
+                                                <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:outline-none" placeholder="Game Name"/>
+                                            </div>
+                                            <div className="w-24">
+                                                <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-bold text-right text-rose-600 focus:border-indigo-500 focus:outline-none" placeholder="0"/>
+                                            </div>
+                                            <button onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-1.5"><Icons.Trash2 size={18} /></button>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-xl">
+                            <button onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-lg hover:border-indigo-400 hover:text-indigo-600 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Game Expense</button>
+                            <div className="flex justify-between items-center text-lg font-bold text-slate-800"><span>Total Games</span><span className="text-rose-600">₱{total.toLocaleString()}</span></div>
+                            <button onClick={onClose} className="w-full mt-4 bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const YearlyAnalytics = ({ yearData, incomeData, extrasData, gamesData }) => {
             const yearlyStats = useMemo(() => {
                 let totalExpected = 0;
                 let totalActual = 0;
                 const monthlyData = MONTHS.map(month => {
                     const items = yearData[month] || [];
                     const extras = extrasData[month] || [];
+                    const games = gamesData[month] || [];
                     
                     const incomeRaw = incomeData[month] || [];
                     const income = Array.isArray(incomeRaw) ? incomeRaw.reduce((sum, i) => sum + (Number(i.amount) || 0), 0) : (Number(incomeRaw) || 0);
@@ -277,15 +353,16 @@
                     const mExpected = items.reduce((sum, item) => sum + (Number(item.expected) || 0), 0);
                     const mActualNormal = items.reduce((sum, item) => sum + (Number(item.actual) || 0), 0);
                     const mActualExtras = extras.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+                    const mActualGames = games.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
                     
-                    const mActual = mActualNormal + mActualExtras;
+                    const mActual = mActualNormal + mActualExtras + mActualGames;
 
                     totalExpected += mExpected;
                     totalActual += mActual;
                     return { month, expected: mExpected, actual: mActual, income };
                 });
                 return { monthlyData, totalExpected, totalActual };
-            }, [yearData, incomeData, extrasData]);
+            }, [yearData, incomeData, extrasData, gamesData]);
 
             const maxMonthlyVal = Math.max(...yearlyStats.monthlyData.map(m => Math.max(m.actual, m.expected, m.income || 0)), 1000);
             const pieTotal = Math.max(yearlyStats.totalExpected, yearlyStats.totalActual, 1);
@@ -389,7 +466,7 @@
                                 ></div>
                             </div>
                             
-                            <span className="text-sm font-medium text-slate-600">Cash+Extra</span>
+                            <span className="text-sm font-medium text-slate-600">Cash+Extra+Games</span>
                         </div>
                     </div>
                 </div>
@@ -492,14 +569,16 @@
             const [selectedMonth, setSelectedMonth] = useState("January");
             const [yearData, setYearData] = useState({});
             const [incomeData, setIncomeData] = useState({});
-            const [extrasData, setExtrasData] = useState({}); // New State for Extras
+            const [extrasData, setExtrasData] = useState({});
+            const [gamesData, setGamesData] = useState({}); // New State for Games
             const [loading, setLoading] = useState(true);
             const [saving, setSaving] = useState(false);
             const [clipboard, setClipboard] = useState(null);
             const [copyStatus, setCopyStatus] = useState('');
             const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
-            const [isExtrasModalOpen, setIsExtrasModalOpen] = useState(false); // New Modal State
-            const [isDataModalOpen, setIsDataModalOpen] = useState(false); // Data Export/Import Modal
+            const [isExtrasModalOpen, setIsExtrasModalOpen] = useState(false);
+            const [isGamesModalOpen, setIsGamesModalOpen] = useState(false); // New Modal State
+            const [isDataModalOpen, setIsDataModalOpen] = useState(false); 
             
             // SORT STATE
             const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
@@ -510,6 +589,7 @@
                         const savedData = localStorage.getItem('budget_2026_data');
                         const savedIncome = localStorage.getItem('budget_2026_income');
                         const savedExtras = localStorage.getItem('budget_2026_extras');
+                        const savedGames = localStorage.getItem('budget_2026_games');
                         const savedClipboard = localStorage.getItem('budget_clipboard');
                         
                         if (savedData) setYearData(JSON.parse(savedData));
@@ -523,6 +603,7 @@
                             setIncomeData(parsedIncome);
                         }
                         if (savedExtras) setExtrasData(JSON.parse(savedExtras));
+                        if (savedGames) setGamesData(JSON.parse(savedGames));
                         if (savedClipboard) setClipboard(JSON.parse(savedClipboard));
                     } catch (e) { console.error("Error loading data", e); }
                     setLoading(false);
@@ -542,7 +623,7 @@
 
             const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-            const saveDataToStorage = (newData, newIncomeData, newExtrasData) => {
+            const saveDataToStorage = (newData, newIncomeData, newExtrasData, newGamesData) => {
                 setSaving(true);
                 if (newData) {
                     setYearData(newData);
@@ -556,6 +637,10 @@
                     setExtrasData(newExtrasData);
                     localStorage.setItem('budget_2026_extras', JSON.stringify(newExtrasData));
                 }
+                if (newGamesData) {
+                    setGamesData(newGamesData);
+                    localStorage.setItem('budget_2026_games', JSON.stringify(newGamesData));
+                }
                 setTimeout(() => setSaving(false), 600);
             };
 
@@ -565,6 +650,7 @@
                     yearData,
                     incomeData,
                     extrasData,
+                    gamesData,
                     timestamp: new Date().toISOString()
                 };
                 const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -586,11 +672,11 @@
                     try {
                         const imported = JSON.parse(e.target.result);
                         if (imported.yearData) {
-                            saveDataToStorage(imported.yearData, imported.incomeData, imported.extrasData);
-                            // Set state directly to reflect changes immediately
+                            saveDataToStorage(imported.yearData, imported.incomeData, imported.extrasData, imported.gamesData);
                             setYearData(imported.yearData);
                             if(imported.incomeData) setIncomeData(imported.incomeData);
                             if(imported.extrasData) setExtrasData(imported.extrasData);
+                            if(imported.gamesData) setGamesData(imported.gamesData);
                             alert("Data imported successfully!");
                             setIsDataModalOpen(false);
                         } else {
@@ -605,18 +691,23 @@
 
             const handleUpdateIncomeList = (newItems) => {
                 const newIncomeData = { ...incomeData, [selectedMonth]: newItems };
-                saveDataToStorage(null, newIncomeData, null);
+                saveDataToStorage(null, newIncomeData, null, null);
             }
 
             const handleUpdateExtrasList = (newItems) => {
                 const newExtrasData = { ...extrasData, [selectedMonth]: newItems };
-                saveDataToStorage(null, null, newExtrasData);
+                saveDataToStorage(null, null, newExtrasData, null);
+            }
+
+            const handleUpdateGamesList = (newItems) => {
+                const newGamesData = { ...gamesData, [selectedMonth]: newItems };
+                saveDataToStorage(null, null, null, newGamesData);
             }
 
             const handleUpdateItem = (id, field, value) => {
                 const currentItems = yearData[selectedMonth] || [];
                 const updatedItems = currentItems.map(item => item.id === id ? { ...item, [field]: value } : item);
-                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null);
             };
 
             const handleAddItem = () => {
@@ -631,7 +722,7 @@
                     actual: 0,
                     repaymentType: null 
                 };
-                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null);
             };
 
             const handleAddBill = (type, amount, prevMonthName) => {
@@ -646,12 +737,12 @@
                     actual: 0,
                     repaymentType: type 
                 };
-                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null);
             };
 
             const handleDeleteItem = (id) => {
                 const updatedItems = (yearData[selectedMonth] || []).filter(item => item.id !== id);
-                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null);
             };
 
             const cycleStatus = (id, currentStatus) => {
@@ -671,7 +762,7 @@
                     }
                     return item;
                 });
-                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null);
             };
 
             const cyclePriority = (id, currentPriority) => {
@@ -697,15 +788,16 @@
                 } else if (direction === 'down' && index < items.length - 1) {
                     [items[index], items[index + 1]] = [items[index + 1], items[index]];
                 }
-                saveDataToStorage({ ...yearData, [selectedMonth]: items }, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: items }, null, null, null);
             };
 
             const handleCopyMonth = () => {
                 const items = yearData[selectedMonth] || [];
                 const incomeItems = incomeData[selectedMonth] || [];
                 const extraItems = extrasData[selectedMonth] || [];
+                const gameItems = gamesData[selectedMonth] || [];
                 
-                if (items.length === 0 && incomeItems.length === 0 && extraItems.length === 0) return;
+                if (items.length === 0 && incomeItems.length === 0 && extraItems.length === 0 && gameItems.length === 0) return;
                 
                 const itemsToCopy = items.map(item => ({
                     name: item.name,
@@ -719,8 +811,15 @@
                 }));
                 const incomeToCopy = incomeItems.map(inc => ({ name: inc.name, amount: inc.amount }));
                 const extrasToCopy = extraItems.map(ext => ({ name: ext.name, amount: ext.amount, paymentMethod: ext.paymentMethod }));
+                const gamesToCopy = gameItems.map(g => ({ name: g.name, amount: g.amount, paymentMethod: g.paymentMethod }));
                 
-                const clipboardData = { source: selectedMonth, items: itemsToCopy, incomeItems: incomeToCopy, extrasItems: extrasToCopy };
+                const clipboardData = { 
+                    source: selectedMonth, 
+                    items: itemsToCopy, 
+                    incomeItems: incomeToCopy, 
+                    extrasItems: extrasToCopy,
+                    gamesItems: gamesToCopy
+                };
                 
                 localStorage.setItem('budget_clipboard', JSON.stringify(clipboardData));
                 setClipboard(clipboardData);
@@ -733,6 +832,7 @@
                 let newData = null;
                 let newIncomeData = null;
                 let newExtrasData = null;
+                let newGamesData = null;
 
                 if (clipboard.items && clipboard.items.length > 0) {
                     const newItems = clipboard.items.map(item => ({ ...item, id: generateId() }));
@@ -748,9 +848,14 @@
                     const newExtrasItems = clipboard.extrasItems.map(ext => ({ id: generateId(), name: ext.name, amount: ext.amount, paymentMethod: ext.paymentMethod }));
                     newExtrasData = { ...extrasData, [selectedMonth]: newExtrasItems };
                 }
+                const currentGames = gamesData[selectedMonth] || [];
+                if (clipboard.gamesItems && clipboard.gamesItems.length > 0 && currentGames.length === 0) {
+                    const newGamesItems = clipboard.gamesItems.map(g => ({ id: generateId(), name: g.name, amount: g.amount, paymentMethod: g.paymentMethod }));
+                    newGamesData = { ...gamesData, [selectedMonth]: newGamesItems };
+                }
 
-                if (newData || newIncomeData || newExtrasData) {
-                    saveDataToStorage(newData, newIncomeData, newExtrasData);
+                if (newData || newIncomeData || newExtrasData || newGamesData) {
+                    saveDataToStorage(newData, newIncomeData, newExtrasData, newGamesData);
                     setCopyStatus('pasted');
                     setTimeout(() => setCopyStatus(''), 2000);
                 }
@@ -811,6 +916,10 @@
             const currentExtras = extrasData[selectedMonth] || [];
             const totalExtrasAmount = currentExtras.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
+            // GAMES DATA
+            const currentGames = gamesData[selectedMonth] || [];
+            const totalGamesAmount = currentGames.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
             const globalCreditStats = useMemo(() => {
                 let mayaUsed = 0;
                 let unionUsed = 0;
@@ -837,11 +946,20 @@
                     });
                 });
 
+                // Games items
+                Object.values(gamesData).forEach(monthGames => {
+                    monthGames.forEach(item => {
+                        const amount = Number(item.amount) || 0;
+                        if (item.paymentMethod === 'maya') mayaUsed += amount;
+                        if (item.paymentMethod === 'unionbank') unionUsed += amount;
+                    });
+                });
+
                 return {
                     mayaTotal: Math.max(0, mayaUsed - mayaPaid),
                     unionTotal: Math.max(0, unionUsed - unionPaid)
                 };
-            }, [yearData, extrasData]);
+            }, [yearData, extrasData, gamesData]);
 
             const prevMonthAlerts = useMemo(() => {
                 const currentIndex = MONTHS.indexOf(selectedMonth);
@@ -850,6 +968,7 @@
                 const prevMonthName = MONTHS[currentIndex - 1];
                 const prevItems = yearData[prevMonthName] || [];
                 const prevExtras = extrasData[prevMonthName] || [];
+                const prevGames = gamesData[prevMonthName] || [];
                 
                 let prevMayaSpend = 0;
                 let prevUnionSpend = 0;
@@ -864,6 +983,11 @@
                     if (item.paymentMethod === 'unionbank') prevUnionSpend += (Number(item.amount) || 0);
                 });
 
+                prevGames.forEach(item => {
+                    if (item.paymentMethod === 'maya') prevMayaSpend += (Number(item.amount) || 0);
+                    if (item.paymentMethod === 'unionbank') prevUnionSpend += (Number(item.amount) || 0);
+                });
+
                 const hasMayaBill = rawItems.some(i => i.repaymentType === 'maya' && i.name.includes(prevMonthName));
                 const hasUnionBill = rawItems.some(i => i.repaymentType === 'unionbank' && i.name.includes(prevMonthName));
 
@@ -872,7 +996,7 @@
                     union: hasUnionBill ? 0 : prevUnionSpend,
                     prevMonth: prevMonthName
                 };
-            }, [selectedMonth, yearData, extrasData, rawItems]);
+            }, [selectedMonth, yearData, extrasData, gamesData, rawItems]);
 
             const totals = useMemo(() => {
                 const mainTotals = currentItems.reduce((acc, item) => {
@@ -897,12 +1021,22 @@
                     };
                 }, { actual: 0, cashFlow: 0 });
 
+                // Add games to totals
+                const gamesTotals = currentGames.reduce((acc, item) => {
+                    const amount = Number(item.amount) || 0;
+                    const method = item.paymentMethod || 'cash';
+                    return {
+                        actual: acc.actual + amount,
+                        cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0)
+                    };
+                }, { actual: 0, cashFlow: 0 });
+
                 return {
                     expected: mainTotals.expected,
-                    actual: mainTotals.actual + extrasTotals.actual,
-                    cashFlow: mainTotals.cashFlow + extrasTotals.cashFlow
+                    actual: mainTotals.actual + extrasTotals.actual + gamesTotals.actual,
+                    cashFlow: mainTotals.cashFlow + extrasTotals.cashFlow + gamesTotals.cashFlow
                 };
-            }, [currentItems, currentExtras]);
+            }, [currentItems, currentExtras, currentGames]);
 
             const cashRemaining = currentTotalIncome - totals.cashFlow;
 
@@ -951,7 +1085,7 @@
                     </header>
 
                     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <YearlyAnalytics yearData={yearData} incomeData={incomeData} extrasData={extrasData} />
+                        <YearlyAnalytics yearData={yearData} incomeData={incomeData} extrasData={extrasData} gamesData={gamesData} />
                         <div className="h-px bg-slate-200 mb-8"></div>
                         <div className="flex items-center gap-2 mb-6"><h2 className="text-xl font-bold text-slate-800">{selectedMonth} Details</h2></div>
                         
@@ -974,11 +1108,12 @@
                                             <button onClick={handleCopyMonth} className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${(currentItems.length === 0 && currentTotalIncome === 0) ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-indigo-600'}`}>{copyStatus === 'copied' ? <Icons.Check size={16} className="text-emerald-500"/> : <Icons.Copy size={16} />}<span className="hidden sm:inline">Copy</span></button>
                                             {clipboard && (<button onClick={handlePasteMonth} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 text-sm font-medium rounded-lg transition-colors">{copyStatus === 'pasted' ? <Icons.Check size={16} /> : <Icons.ClipboardPaste size={16} />}<span className="hidden sm:inline">Paste</span></button>)}
                                             <button onClick={() => setIsExtrasModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-amber-300 text-amber-600 hover:bg-amber-50 text-sm font-medium rounded-lg transition-colors ml-2"><Icons.ListPlus size={16} /> <span className="hidden sm:inline">Extras</span></button>
+                                            <button onClick={() => setIsGamesModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-purple-300 text-purple-600 hover:bg-purple-50 text-sm font-medium rounded-lg transition-colors ml-2"><Icons.Gamepad2 size={16} /> <span className="hidden sm:inline">Games</span></button>
                                             <button onClick={handleAddItem} className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors ml-2"><Icons.Plus size={16} /> <span className="hidden sm:inline">Add Item</span><span className="sm:hidden">Add</span></button>
                                         </div>
                                     </div>
 
-                                    {currentItems.length === 0 && currentExtras.length === 0 ? (
+                                    {currentItems.length === 0 && currentExtras.length === 0 && currentGames.length === 0 ? (
                                         <div className="p-12 text-center text-slate-400 flex flex-col items-center"><div className="bg-slate-100 p-4 rounded-full mb-4"><Icons.DollarSign className="w-6 h-6 text-slate-400" /></div><p className="text-lg font-medium text-slate-600">No expenses yet</p></div>
                                     ) : (
                                         <div className="overflow-x-auto">
@@ -1093,6 +1228,29 @@
                                                             <td></td>
                                                         </tr>
                                                     )}
+                                                    {/* GAMES SUMMARY ROW */}
+                                                    {currentGames.length > 0 && (
+                                                        <tr className="bg-purple-50/50 hover:bg-purple-50 cursor-pointer" onClick={() => setIsGamesModalOpen(true)}>
+                                                            <td className="px-3 py-2 text-center">
+                                                                <div className="p-1.5 rounded-full bg-purple-100 text-purple-600 mx-auto w-min"><Icons.CheckCircle size={18} /></div>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center">
+                                                                <div className="p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border border-slate-200 text-slate-400 bg-white mx-auto flex items-center justify-center">-</div>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center">
+                                                                <div className="p-1.5 rounded-md bg-purple-100 text-purple-600 mx-auto w-min"><Icons.Gamepad2 size={18} /></div>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center"><span className="text-xs text-purple-700 font-medium">--</span></td>
+                                                            <td className="px-4 py-2">
+                                                                <span className="font-bold text-purple-900">Gaming Expenses</span>
+                                                                <span className="text-xs text-purple-600 ml-2 font-normal">({currentGames.length} items)</span>
+                                                            </td>
+                                                            <td className="px-4 py-2 text-right"><span className="text-slate-300 text-sm">-</span></td>
+                                                            <td className="px-4 py-2 text-right"><span className="font-bold text-purple-700 text-sm">₱{totalGamesAmount.toLocaleString()}</span></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                    )}
                                                     <tr className="bg-slate-50/80 font-semibold text-slate-700">
                                                         <td colSpan="5" className="px-6 py-4">Total Cash Needed</td>
                                                         <td className="px-4 py-4 text-right font-mono text-sm">₱{totals.expected.toLocaleString()}</td>
@@ -1110,6 +1268,7 @@
                         </div>
                         <IncomeModal isOpen={isIncomeModalOpen} onClose={() => setIsIncomeModalOpen(false)} month={selectedMonth} items={currentIncomeList} onUpdate={handleUpdateIncomeList} />
                         <ExtrasModal isOpen={isExtrasModalOpen} onClose={() => setIsExtrasModalOpen(false)} month={selectedMonth} items={currentExtras} onUpdate={handleUpdateExtrasList} />
+                        <GamesModal isOpen={isGamesModalOpen} onClose={() => setIsGamesModalOpen(false)} month={selectedMonth} items={currentGames} onUpdate={handleUpdateGamesList} />
                         <DataModal isOpen={isDataModalOpen} onClose={() => setIsDataModalOpen(false)} onExport={handleExport} onImport={handleImport} />
                     </main>
                 </div>
