@@ -75,11 +75,6 @@
         ];
         const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         
-        const CREDIT_LIMITS = {
-            maya: 18000,
-            unionbank: 15000
-        };
-
         const PRIORITIES = {
             high: { color: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-500', label: 'High' },
             medium: { color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-400', label: 'Med' },
@@ -132,6 +127,54 @@
                                 </div>
                             </button>
                             <input type="file" ref={fileInputRef} onChange={onImport} className="hidden" accept=".json" />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LimitModal = ({ isOpen, onClose, limits, onUpdate }) => {
+            if (!isOpen) return null;
+            const [localLimits, setLocalLimits] = useState(limits);
+
+            const handleChange = (key, value) => {
+                setLocalLimits(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
+            };
+
+            const handleSave = () => {
+                onUpdate(localLimits);
+                onClose();
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <Icons.CreditCard className="text-orange-500" size={20} /> Credit Limits
+                            </h3>
+                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><Icons.X size={24} /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Maya Credit Limit</label>
+                                <input 
+                                    type="number" 
+                                    value={localLimits.maya} 
+                                    onChange={(e) => handleChange('maya', e.target.value)}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-indigo-500 focus:outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">UnionBank Limit</label>
+                                <input 
+                                    type="number" 
+                                    value={localLimits.unionbank} 
+                                    onChange={(e) => handleChange('unionbank', e.target.value)}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-indigo-500 focus:outline-none"
+                                />
+                            </div>
+                            <button onClick={handleSave} className="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition-colors mt-2">Save Limits</button>
                         </div>
                     </div>
                 </div>
@@ -499,12 +542,17 @@
             );
         };
 
-        const CreditCardWidget = ({ title, used, limit, icon: Icon, colorClass, barColorClass }) => {
+        const CreditCardWidget = ({ title, used, limit, icon: Icon, colorClass, barColorClass, onEdit }) => {
             const percentage = Math.min((used / limit) * 100, 100);
             const remaining = limit - used;
             
             return (
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative group">
+                    {onEdit && (
+                        <button onClick={onEdit} className="absolute top-4 right-4 text-slate-300 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                            <Icons.Edit2 size={14} />
+                        </button>
+                    )}
                     <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-2">
                              <div className={`p-2 rounded-lg bg-slate-50 ${colorClass}`}>
@@ -570,15 +618,17 @@
             const [yearData, setYearData] = useState({});
             const [incomeData, setIncomeData] = useState({});
             const [extrasData, setExtrasData] = useState({});
-            const [gamesData, setGamesData] = useState({}); // New State for Games
+            const [gamesData, setGamesData] = useState({}); 
+            const [creditLimits, setCreditLimits] = useState({ maya: 18000, unionbank: 15000 }); // New state for limits
             const [loading, setLoading] = useState(true);
             const [saving, setSaving] = useState(false);
             const [clipboard, setClipboard] = useState(null);
             const [copyStatus, setCopyStatus] = useState('');
             const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
             const [isExtrasModalOpen, setIsExtrasModalOpen] = useState(false);
-            const [isGamesModalOpen, setIsGamesModalOpen] = useState(false); // New Modal State
+            const [isGamesModalOpen, setIsGamesModalOpen] = useState(false);
             const [isDataModalOpen, setIsDataModalOpen] = useState(false); 
+            const [isLimitModalOpen, setIsLimitModalOpen] = useState(false); // New Modal state for Limits
             
             // SORT STATE
             const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
@@ -590,6 +640,7 @@
                         const savedIncome = localStorage.getItem('budget_2026_income');
                         const savedExtras = localStorage.getItem('budget_2026_extras');
                         const savedGames = localStorage.getItem('budget_2026_games');
+                        const savedLimits = localStorage.getItem('budget_2026_limits');
                         const savedClipboard = localStorage.getItem('budget_clipboard');
                         
                         if (savedData) setYearData(JSON.parse(savedData));
@@ -604,6 +655,7 @@
                         }
                         if (savedExtras) setExtrasData(JSON.parse(savedExtras));
                         if (savedGames) setGamesData(JSON.parse(savedGames));
+                        if (savedLimits) setCreditLimits(JSON.parse(savedLimits));
                         if (savedClipboard) setClipboard(JSON.parse(savedClipboard));
                     } catch (e) { console.error("Error loading data", e); }
                     setLoading(false);
@@ -623,7 +675,7 @@
 
             const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-            const saveDataToStorage = (newData, newIncomeData, newExtrasData, newGamesData) => {
+            const saveDataToStorage = (newData, newIncomeData, newExtrasData, newGamesData, newLimits) => {
                 setSaving(true);
                 if (newData) {
                     setYearData(newData);
@@ -641,6 +693,10 @@
                     setGamesData(newGamesData);
                     localStorage.setItem('budget_2026_games', JSON.stringify(newGamesData));
                 }
+                if (newLimits) {
+                    setCreditLimits(newLimits);
+                    localStorage.setItem('budget_2026_limits', JSON.stringify(newLimits));
+                }
                 setTimeout(() => setSaving(false), 600);
             };
 
@@ -651,6 +707,7 @@
                     incomeData,
                     extrasData,
                     gamesData,
+                    creditLimits,
                     timestamp: new Date().toISOString()
                 };
                 const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -672,11 +729,22 @@
                     try {
                         const imported = JSON.parse(e.target.result);
                         if (imported.yearData) {
-                            saveDataToStorage(imported.yearData, imported.incomeData, imported.extrasData, imported.gamesData);
+                            // Update State
                             setYearData(imported.yearData);
                             if(imported.incomeData) setIncomeData(imported.incomeData);
                             if(imported.extrasData) setExtrasData(imported.extrasData);
                             if(imported.gamesData) setGamesData(imported.gamesData);
+                            if(imported.creditLimits) setCreditLimits(imported.creditLimits);
+                            
+                            // Save to Local Storage immediately to persist
+                            saveDataToStorage(
+                                imported.yearData, 
+                                imported.incomeData, 
+                                imported.extrasData, 
+                                imported.gamesData, 
+                                imported.creditLimits
+                            );
+                            
                             alert("Data imported successfully!");
                             setIsDataModalOpen(false);
                         } else {
@@ -691,23 +759,27 @@
 
             const handleUpdateIncomeList = (newItems) => {
                 const newIncomeData = { ...incomeData, [selectedMonth]: newItems };
-                saveDataToStorage(null, newIncomeData, null, null);
+                saveDataToStorage(null, newIncomeData, null, null, null);
             }
 
             const handleUpdateExtrasList = (newItems) => {
                 const newExtrasData = { ...extrasData, [selectedMonth]: newItems };
-                saveDataToStorage(null, null, newExtrasData, null);
+                saveDataToStorage(null, null, newExtrasData, null, null);
             }
 
             const handleUpdateGamesList = (newItems) => {
                 const newGamesData = { ...gamesData, [selectedMonth]: newItems };
-                saveDataToStorage(null, null, null, newGamesData);
+                saveDataToStorage(null, null, null, newGamesData, null);
+            }
+
+            const handleUpdateLimits = (newLimits) => {
+                saveDataToStorage(null, null, null, null, newLimits);
             }
 
             const handleUpdateItem = (id, field, value) => {
                 const currentItems = yearData[selectedMonth] || [];
                 const updatedItems = currentItems.map(item => item.id === id ? { ...item, [field]: value } : item);
-                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null, null);
             };
 
             const handleAddItem = () => {
@@ -722,7 +794,7 @@
                     actual: 0,
                     repaymentType: null 
                 };
-                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null, null);
             };
 
             const handleAddBill = (type, amount, prevMonthName) => {
@@ -737,12 +809,12 @@
                     actual: 0,
                     repaymentType: type 
                 };
-                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null, null);
             };
 
             const handleDeleteItem = (id) => {
                 const updatedItems = (yearData[selectedMonth] || []).filter(item => item.id !== id);
-                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null, null);
             };
 
             const cycleStatus = (id, currentStatus) => {
@@ -754,15 +826,21 @@
                 const currentItems = yearData[selectedMonth] || [];
                 const updatedItems = currentItems.map(item => {
                     if (item.id === id) {
-                        return { 
-                            ...item, 
+                        let updates = { 
                             status: nextStatus,
                             isPaid: nextStatus === 'paid'
                         };
+                        
+                        // AUTO-PAY Logic for Repayments: If marking as Paid and actual is 0, auto-fill expected amount
+                        if (nextStatus === 'paid' && item.repaymentType && (!item.actual || item.actual === 0)) {
+                            updates.actual = item.expected;
+                        }
+                        
+                        return { ...item, ...updates };
                     }
                     return item;
                 });
-                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null, null);
             };
 
             const cyclePriority = (id, currentPriority) => {
@@ -788,7 +866,7 @@
                 } else if (direction === 'down' && index < items.length - 1) {
                     [items[index], items[index + 1]] = [items[index + 1], items[index]];
                 }
-                saveDataToStorage({ ...yearData, [selectedMonth]: items }, null, null, null);
+                saveDataToStorage({ ...yearData, [selectedMonth]: items }, null, null, null, null);
             };
 
             const handleCopyMonth = () => {
@@ -855,7 +933,7 @@
                 }
 
                 if (newData || newIncomeData || newExtrasData || newGamesData) {
-                    saveDataToStorage(newData, newIncomeData, newExtrasData, newGamesData);
+                    saveDataToStorage(newData, newIncomeData, newExtrasData, newGamesData, null);
                     setCopyStatus('pasted');
                     setTimeout(() => setCopyStatus(''), 2000);
                 }
@@ -1095,8 +1173,24 @@
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             <StatCard title="Total Income" amount={currentTotalIncome} type="income" icon={Icons.Wallet} onEdit={() => setIsIncomeModalOpen(true)} />
                             <StatCard title="Cash on Hand" amount={cashRemaining} type="balance" icon={cashRemaining >= 0 ? Icons.TrendingUp : Icons.TrendingDown} />
-                            <CreditCardWidget title="Maya Credit" used={globalCreditStats.mayaTotal} limit={CREDIT_LIMITS.maya} icon={Icons.Smartphone} colorClass="text-slate-900" barColorClass="bg-slate-800" />
-                            <CreditCardWidget title="UnionBank" used={globalCreditStats.unionTotal} limit={CREDIT_LIMITS.unionbank} icon={Icons.CreditCard} colorClass="text-orange-500" barColorClass="bg-orange-500" />
+                            <CreditCardWidget 
+                                title="Maya Credit" 
+                                used={globalCreditStats.mayaTotal} 
+                                limit={creditLimits.maya} 
+                                icon={Icons.Smartphone} 
+                                colorClass="text-slate-900" 
+                                barColorClass="bg-slate-800" 
+                                onEdit={() => setIsLimitModalOpen(true)}
+                            />
+                            <CreditCardWidget 
+                                title="UnionBank" 
+                                used={globalCreditStats.unionTotal} 
+                                limit={creditLimits.unionbank} 
+                                icon={Icons.CreditCard} 
+                                colorClass="text-orange-500" 
+                                barColorClass="bg-orange-500" 
+                                onEdit={() => setIsLimitModalOpen(true)}
+                            />
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1270,6 +1364,7 @@
                         <ExtrasModal isOpen={isExtrasModalOpen} onClose={() => setIsExtrasModalOpen(false)} month={selectedMonth} items={currentExtras} onUpdate={handleUpdateExtrasList} />
                         <GamesModal isOpen={isGamesModalOpen} onClose={() => setIsGamesModalOpen(false)} month={selectedMonth} items={currentGames} onUpdate={handleUpdateGamesList} />
                         <DataModal isOpen={isDataModalOpen} onClose={() => setIsDataModalOpen(false)} onExport={handleExport} onImport={handleImport} />
+                        <LimitModal isOpen={isLimitModalOpen} onClose={() => setIsLimitModalOpen(false)} limits={creditLimits} onUpdate={handleUpdateLimits} />
                     </main>
                 </div>
             );
