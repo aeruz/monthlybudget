@@ -394,9 +394,22 @@
                     const income = Array.isArray(incomeRaw) ? incomeRaw.reduce((sum, i) => sum + (Number(i.amount) || 0), 0) : (Number(incomeRaw) || 0);
                     
                     const mExpected = items.reduce((sum, item) => sum + (Number(item.expected) || 0), 0);
-                    const mActualNormal = items.reduce((sum, item) => sum + (Number(item.actual) || 0), 0);
-                    const mActualExtras = extras.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-                    const mActualGames = games.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+                    
+                    // Modified: Only count CASH payments towards Actual totals (Credit is deferred)
+                    const mActualNormal = items.reduce((sum, item) => {
+                        const isCash = (item.paymentMethod || 'cash') === 'cash';
+                        return sum + (isCash ? (Number(item.actual) || 0) : 0);
+                    }, 0);
+
+                    const mActualExtras = extras.reduce((sum, item) => {
+                        const isCash = (item.paymentMethod || 'cash') === 'cash';
+                        return sum + (isCash ? (Number(item.amount) || 0) : 0);
+                    }, 0);
+
+                    const mActualGames = games.reduce((sum, item) => {
+                        const isCash = (item.paymentMethod || 'cash') === 'cash';
+                        return sum + (isCash ? (Number(item.amount) || 0) : 0);
+                    }, 0);
                     
                     const mActual = mActualNormal + mActualExtras + mActualGames;
 
@@ -1083,7 +1096,8 @@
                     
                     let newAcc = {
                         expected: acc.expected + (Number(item.expected) || 0),
-                        actual: acc.actual + (item.repaymentType ? 0 : actual), 
+                        // Modified: Actual now only reflects CASH payments (deferring credit)
+                        actual: acc.actual + (method === 'cash' ? actual : 0), 
                         cashFlow: acc.cashFlow + (method === 'cash' ? actual : 0)
                     };
                     return newAcc;
@@ -1094,7 +1108,7 @@
                     const amount = Number(item.amount) || 0;
                     const method = item.paymentMethod || 'cash';
                     return {
-                        actual: acc.actual + amount,
+                        actual: acc.actual + (method === 'cash' ? amount : 0),
                         cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0)
                     };
                 }, { actual: 0, cashFlow: 0 });
@@ -1104,7 +1118,7 @@
                     const amount = Number(item.amount) || 0;
                     const method = item.paymentMethod || 'cash';
                     return {
-                        actual: acc.actual + amount,
+                        actual: acc.actual + (method === 'cash' ? amount : 0),
                         cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0)
                     };
                 }, { actual: 0, cashFlow: 0 });
