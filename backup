@@ -1,33 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026 Budget Planner</title>
     
-    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Pinned Babel standalone to 7.23.10 to prevent 'import' injection errors from the newer automatic JSX runtime in 7.24+ -->
+    <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
+        body { background-color: #020617; color: #f8fafc; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        .sort-active { background-color: #f1f5f9; }
+        .sort-active { background-color: #1e293b; }
         .privacy-blur { filter: blur(6px); pointer-events: none; user-select: none; }
-        
-        /* iOS Tap highlight fix */
         * { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 overscroll-none">
+<body class="bg-slate-950 text-slate-100 overscroll-none">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -50,8 +63,8 @@
             Calendar: (props) => <Icon {...props} path={<><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></>} />,
             BarChart3: (props) => <Icon {...props} path={<><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></>} />,
             Wallet: (props) => <Icon {...props} path={<><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></>} />,
+            Copy: (props) => <Icon {...props} path={<><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></>} />,
             ClipboardPaste: (props) => <Icon {...props} path={<><path d="M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3a1 1 0 0 0-1-1Z"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M16 4h2a2 2 0 0 1 2 2v2M11 14h10"/><path d="m17 10 4 4-4 4"/></>} />,
-            FileText: (props) => <Icon {...props} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></>} />,
             Check: (props) => <Icon {...props} path={<><polyline points="20 6 9 17 4 12"/></>} />,
             Circle: (props) => <Icon {...props} path={<><circle cx="12" cy="12" r="10"/></>} />,
             CheckCircle: (props) => <Icon {...props} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />,
@@ -63,7 +76,6 @@
             Unlock: (props) => <Icon {...props} path={<><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></>} />,
             Smartphone: (props) => <Icon {...props} path={<><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></>} />,
             RefreshCw: (props) => <Icon {...props} path={<><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></>} />,
-            Flag: (props) => <Icon {...props} path={<><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></>} />,
             ArrowUp: (props) => <Icon {...props} path={<><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></>} />,
             ArrowDown: (props) => <Icon {...props} path={<><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></>} />,
             ListPlus: (props) => <Icon {...props} path={<><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v6"/><path d="M21 12h-6"/></>} />,
@@ -73,7 +85,12 @@
             Download: (props) => <Icon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>} />,
             Upload: (props) => <Icon {...props} path={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>} />,
             Eye: (props) => <Icon {...props} path={<><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></>} />,
-            EyeOff: (props) => <Icon {...props} path={<><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></>} />
+            EyeOff: (props) => <Icon {...props} path={<><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></>} />,
+            Cloud: (props) => <Icon {...props} path={<><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></>} />,
+            CloudUpload: (props) => <Icon {...props} path={<><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></>} />,
+            CloudDownload: (props) => <Icon {...props} path={<><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></>} />,
+            FileText: (props) => <Icon {...props} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></>} />,
+            Github: (props) => <Icon {...props} path={<><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.24c3-.34 6-1.54 6-6.38 0-1.42-.5-2.61-1.33-3.51.13-.33.58-1.66-.14-3.46 0 0-1.08-.34-3.52 1.3a12.3 12.3 0 0 0-6.4 0C6.18 1.15 5.1 1.49 5.1 1.49c-.72 1.8-.27 3.13-.14 3.46A5.4 5.4 0 0 0 3.63 8.41c0 4.83 3 6.03 6 6.38a4.8 4.8 0 0 0-1 3.24v4"/><path d="M9 21c-3 1-5-1.5-5-2.59"/></>} />
         };
 
         const MONTHS = [
@@ -83,52 +100,342 @@
         const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         
         const PRIORITIES = {
-            high: { color: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-500', label: 'High' },
-            medium: { color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-400', label: 'Med' },
-            low: { color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-200', label: 'Low' }
+            high: { color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/50', label: 'High' },
+            medium: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-400/50', label: 'Med' },
+            low: { color: 'text-slate-400', bg: 'bg-slate-700', border: 'border-slate-600', label: 'Low' }
         };
 
+        // --- UTILS ---
+        const utf8ToBase64 = (str) => window.btoa(unescape(encodeURIComponent(str)));
+        const base64ToUtf8 = (str) => decodeURIComponent(escape(window.atob(str)));
+
         // --- COMPONENTS ---
+
+        const GistModal = ({ isOpen, onClose, fullData, onImportData }) => {
+            if (!isOpen) return null;
+            const [token, setToken] = useState(localStorage.getItem('gh_token') || '');
+            const [gistId, setGistId] = useState(localStorage.getItem('gh_gist_id') || '');
+            const [status, setStatus] = useState('idle'); // idle, loading, success, error
+            const [message, setMessage] = useState('');
+
+            const saveSettings = () => {
+                localStorage.setItem('gh_token', token.trim());
+                localStorage.setItem('gh_gist_id', gistId.trim());
+            };
+
+            const handlePull = async () => {
+                saveSettings();
+                if (!gistId) {
+                    setStatus('error');
+                    setMessage('Gist ID is required to Load from Cloud.');
+                    return;
+                }
+                
+                setStatus('loading');
+                setMessage('Loading from Cloud...');
+                
+                try {
+                    const cleanToken = token.trim();
+                    const cleanGistId = gistId.trim();
+                    const res = await fetch(`https://api.github.com/gists/${cleanGistId}`, {
+                        headers: { 
+                            'Authorization': `Bearer ${cleanToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (!res.ok) throw new Error(`GitHub API Error: ${res.status}`);
+                    const data = await res.json();
+                    
+                    // Gists store files as an object. We try to find our specific file, or just grab the first one.
+                    const fileObj = data.files['budget_data.json'] || Object.values(data.files)[0];
+                    if (!fileObj || !fileObj.content) throw new Error("No valid data found in this Gist.");
+                    
+                    const imported = JSON.parse(fileObj.content);
+                    onImportData(imported);
+                    
+                    setStatus('success');
+                    setMessage('Data successfully loaded from Cloud!');
+                    setTimeout(onClose, 2000);
+                } catch (e) {
+                    setStatus('error');
+                    setMessage(e.message || 'Failed to load data. Check your Token and Gist ID.');
+                }
+            };
+
+            const handlePush = async () => {
+                saveSettings();
+                setStatus('loading');
+                setMessage('Uploading to Cloud...');
+                
+                try {
+                    const cleanToken = token.trim();
+                    const cleanGistId = gistId.trim();
+                    const contentStr = JSON.stringify(fullData, null, 2);
+                    const payload = {
+                        description: "2026 Budget Planner Data Sync",
+                        public: false,
+                        files: {
+                            "budget_data.json": {
+                                content: contentStr
+                            }
+                        }
+                    };
+
+                    let url = 'https://api.github.com/gists';
+                    let method = 'POST'; // Create new
+
+                    if (cleanGistId) {
+                        url = `https://api.github.com/gists/${cleanGistId}`;
+                        method = 'PATCH'; // Update existing
+                    }
+
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: { 
+                            'Authorization': `Bearer ${cleanToken}`, 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json' 
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!res.ok) throw new Error(`GitHub API Error: ${res.status}`);
+                    const data = await res.json();
+                    
+                    // Save the newly created Gist ID so next time it updates instead of duplicates
+                    setGistId(data.id);
+                    localStorage.setItem('gh_gist_id', data.id);
+
+                    setStatus('success');
+                    setMessage('Data successfully uploaded to Cloud!');
+                    setTimeout(onClose, 2000);
+                } catch (e) {
+                    setStatus('error');
+                    setMessage(e.message || 'Failed to upload data. Check your Token.');
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-sm flex flex-col p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                                <Icons.Github className="text-indigo-400" size={20} /> Cloud Settings
+                            </h3>
+                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200"><Icons.X size={24} /></button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 mb-1">GitHub Token (Requires 'gist' scope)</label>
+                                <input 
+                                    type="password" 
+                                    value={token} 
+                                    onChange={(e) => setToken(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-700"
+                                    placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 mb-1">Gist ID (Leave blank on first upload)</label>
+                                <input 
+                                    type="text" 
+                                    value={gistId} 
+                                    onChange={(e) => setGistId(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-700 font-mono text-sm"
+                                    placeholder="e.g. 8b1234c9d..."
+                                />
+                            </div>
+
+                            {status === 'loading' && <p className="text-indigo-400 text-sm font-medium text-center">{message}</p>}
+                            {status === 'success' && <p className="text-emerald-400 text-sm font-medium text-center">{message}</p>}
+                            {status === 'error' && <p className="text-rose-400 text-sm font-medium text-center break-words">{message}</p>}
+
+                            <div className="flex gap-3 pt-2">
+                                <button type="button" onClick={handlePull} disabled={status === 'loading' || !token} className="flex-1 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white font-bold py-2 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                    <Icons.CloudDownload size={18}/> Load
+                                </button>
+                                <button type="button" onClick={handlePush} disabled={status === 'loading' || !token} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                    <Icons.CloudUpload size={18}/> Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SetupScreen = ({ onComplete, onImportData }) => {
+            const [token, setToken] = useState(localStorage.getItem('gh_token') || '');
+            const [gistId, setGistId] = useState(localStorage.getItem('gh_gist_id') || '');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const saveSettings = () => {
+                localStorage.setItem('gh_token', token.trim());
+                localStorage.setItem('gh_gist_id', gistId.trim());
+            };
+
+            const handleLoad = async () => {
+                if (!token || !gistId) { setError('Both Token and Gist ID are required to load.'); return; }
+                setLoading(true); setError('');
+                try {
+                    const cleanToken = token.trim();
+                    const cleanGistId = gistId.trim();
+                    const res = await fetch(`https://api.github.com/gists/${cleanGistId}`, {
+                        headers: { 'Authorization': `Bearer ${cleanToken}`, 'Accept': 'application/vnd.github.v3+json' }
+                    });
+                    if (!res.ok) throw new Error(`GitHub Error: ${res.status}. Check your token and gist ID.`);
+                    const data = await res.json();
+                    const fileObj = data.files['budget_data.json'] || Object.values(data.files)[0];
+                    if (!fileObj || !fileObj.content) throw new Error("No valid data found in this Gist.");
+                    const imported = JSON.parse(fileObj.content);
+                    saveSettings();
+                    onImportData(imported);
+                    onComplete();
+                } catch (e) {
+                    setError(e.message || 'Failed to load data. Check Token/Gist ID.');
+                    setLoading(false);
+                }
+            };
+
+            const handleCreateNew = async () => {
+                if (!token) { setError('Token is required to create a Cloud Save.'); return; }
+                setLoading(true); setError('');
+                try {
+                    const cleanToken = token.trim();
+                    const initialData = {
+                        yearData: {}, incomeData: {}, extrasData: {}, gamesData: {}, templateData: [],
+                        creditLimits: { maya: 18000, unionbank: 15000 },
+                        timestamp: new Date().toISOString()
+                    };
+                    const res = await fetch('https://api.github.com/gists', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${cleanToken}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+                        body: JSON.stringify({
+                            description: "2026 Budget Planner Data Sync",
+                            public: false,
+                            files: { "budget_data.json": { content: JSON.stringify(initialData, null, 2) } }
+                        })
+                    });
+                    if (!res.ok) throw new Error(`GitHub API Error: ${res.status}. Make sure token has 'gist' scope.`);
+                    const data = await res.json();
+                    setGistId(data.id);
+                    localStorage.setItem('gh_token', cleanToken);
+                    localStorage.setItem('gh_gist_id', data.id);
+                    onImportData(initialData);
+                    onComplete();
+                } catch (e) {
+                    setError(e.message || 'Failed to create Gist.');
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-md p-8">
+                        <div className="text-center mb-8">
+                            <div className="bg-indigo-600/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
+                                <Icons.Cloud className="text-indigo-400" size={32} />
+                            </div>
+                            <h2 className="text-2xl font-bold text-slate-100">Welcome to Budget Planner</h2>
+                            <p className="text-slate-400 mt-2 text-sm">Please connect your GitHub account to enable cloud syncing across your devices.</p>
+                        </div>
+                        <div className="space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 mb-1">GitHub Personal Access Token</label>
+                                <input type="password" value={token} onChange={(e) => setToken(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-700" placeholder="Must have 'gist' scope" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-400 mb-1">Gist ID (Optional)</label>
+                                <input type="text" value={gistId} onChange={(e) => setGistId(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-700 font-mono text-sm" placeholder="Leave blank to create a new save" />
+                            </div>
+                            {error && <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg"><p className="text-rose-400 text-sm font-medium text-center">{error}</p></div>}
+                            <div className="flex flex-col gap-3 pt-4">
+                                <button type="button" onClick={handleLoad} disabled={loading || !token || !gistId} className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                    {loading ? <Icons.RefreshCw size={20} className="animate-spin" /> : <Icons.CloudDownload size={20}/>} Load Existing Data
+                                </button>
+                                <button type="button" onClick={handleCreateNew} disabled={loading || !token} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                    {loading ? <Icons.RefreshCw size={20} className="animate-spin" /> : <Icons.CloudUpload size={20}/>} Start Fresh & Create Cloud Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SyncManager = ({ fullData }) => {
+            const [status, setStatus] = useState('idle');
+            const token = localStorage.getItem('gh_token');
+            const gistId = localStorage.getItem('gh_gist_id');
+
+            const handleSync = async () => {
+                if (!token || !gistId) return;
+                setStatus('loading');
+                try {
+                    const cleanToken = token.trim();
+                    const cleanGistId = gistId.trim();
+                    const contentStr = JSON.stringify(fullData, null, 2);
+                    const res = await fetch(`https://api.github.com/gists/${cleanGistId}`, {
+                        method: 'PATCH',
+                        headers: { 'Authorization': `Bearer ${cleanToken}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+                        body: JSON.stringify({ files: { "budget_data.json": { content: contentStr } } })
+                    });
+                    if (!res.ok) throw new Error(`Error: ${res.status}`);
+                    setStatus('success');
+                    setTimeout(() => setStatus('idle'), 2000);
+                } catch (e) {
+                    console.error(e);
+                    setStatus('error');
+                    setTimeout(() => setStatus('idle'), 3000);
+                }
+            };
+
+            return (
+                <button type="button" onClick={handleSync} disabled={status === 'loading'} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-400 transition-colors flex items-center justify-center min-w-[40px]" title="Sync to Cloud">
+                    {status === 'idle' && <Icons.Cloud size={18} />}
+                    {status === 'loading' && <Icons.RefreshCw size={18} className="animate-spin" />}
+                    {status === 'success' && <Icons.Check size={18} className="text-emerald-400" />}
+                    {status === 'error' && <Icons.AlertCircle size={18} className="text-rose-400" />}
+                </button>
+            );
+        };
 
         const DataModal = ({ isOpen, onClose, onExport, onImport }) => {
             if (!isOpen) return null;
             const fileInputRef = useRef(null);
-
-            const handleImportClick = () => {
-                fileInputRef.current.click();
-            };
+            const handleImportClick = () => fileInputRef.current.click();
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-sm flex flex-col p-6">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                                <Icons.Database className="text-indigo-600" size={20} /> Data Options
+                            <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                                <Icons.Database className="text-indigo-400" size={20} /> Data Options
                             </h3>
-                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600"><Icons.X size={24} /></button>
+                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200"><Icons.X size={24} /></button>
                         </div>
-                        
                         <div className="space-y-4">
-                            <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800">
+                            <div className="bg-indigo-900/30 border border-indigo-500/20 p-4 rounded-lg text-sm text-indigo-300">
                                 <p className="mb-2">Your budget data is saved automatically to this browser.</p>
                                 <p>To move data to another device or save a backup, use the options below.</p>
                             </div>
-
-                            <button type="button" onClick={onExport} className="w-full flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group">
+                            <button type="button" onClick={onExport} className="w-full flex items-center justify-between p-4 border border-slate-800 bg-slate-950 rounded-xl hover:bg-slate-800 transition-colors group">
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600"><Icons.Download size={20} /></div>
+                                    <div className="bg-indigo-500/20 p-2 rounded-lg text-indigo-400"><Icons.Download size={20} /></div>
                                     <div className="text-left">
-                                        <p className="font-semibold text-slate-900">Export Backup</p>
+                                        <p className="font-semibold text-slate-200">Export Backup</p>
                                         <p className="text-xs text-slate-500">Save your data as a file</p>
                                     </div>
                                 </div>
                             </button>
-
-                            <button type="button" onClick={handleImportClick} className="w-full flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group">
+                            <button type="button" onClick={handleImportClick} className="w-full flex items-center justify-between p-4 border border-slate-800 bg-slate-950 rounded-xl hover:bg-slate-800 transition-colors group">
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600"><Icons.Upload size={20} /></div>
+                                    <div className="bg-emerald-500/20 p-2 rounded-lg text-emerald-400"><Icons.Upload size={20} /></div>
                                     <div className="text-left">
-                                        <p className="font-semibold text-slate-900">Import Backup</p>
+                                        <p className="font-semibold text-slate-200">Import Backup</p>
                                         <p className="text-xs text-slate-500">Load data from a file</p>
                                     </div>
                                 </div>
@@ -143,43 +450,26 @@
         const LimitModal = ({ isOpen, onClose, limits, onUpdate }) => {
             if (!isOpen) return null;
             const [localLimits, setLocalLimits] = useState(limits);
-
-            const handleChange = (key, value) => {
-                setLocalLimits(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
-            };
-
-            const handleSave = () => {
-                onUpdate(localLimits);
-                onClose();
-            };
+            const handleChange = (key, value) => setLocalLimits(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
+            const handleSave = () => { onUpdate(localLimits); onClose(); };
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-sm flex flex-col p-6">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                                 <Icons.CreditCard className="text-orange-500" size={20} /> Credit Limits
                             </h3>
-                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600"><Icons.X size={24} /></button>
+                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200"><Icons.X size={24} /></button>
                         </div>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Maya Credit Limit</label>
-                                <input 
-                                    type="number" 
-                                    value={localLimits.maya} 
-                                    onChange={(e) => handleChange('maya', e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-indigo-500 focus:outline-none"
-                                />
+                                <label className="block text-xs font-bold text-slate-400 mb-1">Maya Credit Limit</label>
+                                <input type="number" value={localLimits.maya} onChange={(e) => handleChange('maya', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 font-bold focus:border-indigo-500 focus:outline-none"/>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">UnionBank Limit</label>
-                                <input 
-                                    type="number" 
-                                    value={localLimits.unionbank} 
-                                    onChange={(e) => handleChange('unionbank', e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-indigo-500 focus:outline-none"
-                                />
+                                <label className="block text-xs font-bold text-slate-400 mb-1">UnionBank Limit</label>
+                                <input type="number" value={localLimits.unionbank} onChange={(e) => handleChange('unionbank', e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 font-bold focus:border-indigo-500 focus:outline-none"/>
                             </div>
                             <button type="button" onClick={handleSave} className="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition-colors mt-2">Save Limits</button>
                         </div>
@@ -188,68 +478,14 @@
             );
         };
 
-        const UnlockModal = ({ isOpen, onClose, onUnlock }) => {
-            if (!isOpen) return null;
-            const [code, setCode] = useState("");
-            const [error, setError] = useState(false);
-
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                if (code === "223487") {
-                    onUnlock();
-                    setCode("");
-                    setError(false);
-                } else {
-                    setError(true);
-                }
-            };
-
-            return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-slate-900">Enter Security Code</h3>
-                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600"><Icons.X size={24} /></button>
-                        </div>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <input 
-                                type="password" 
-                                value={code} 
-                                onChange={(e) => setCode(e.target.value)} 
-                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-3 text-center text-xl tracking-widest font-bold focus:border-indigo-500 focus:outline-none" 
-                                placeholder="******" 
-                                autoFocus
-                            />
-                            {error && <p className="text-rose-500 text-sm text-center font-medium">Incorrect code.</p>}
-                            <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition-colors">Reveal Data</button>
-                        </form>
-                    </div>
-                </div>
-            );
-        };
-
-        // NEW: Template Modal
         const TemplateModal = ({ isOpen, onClose, items, onUpdate }) => {
             if (!isOpen) return null;
             const total = items.reduce((sum, item) => sum + (Number(item.expected) || 0), 0);
 
-            const handleChange = (id, field, value) => {
-                const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
-                onUpdate(newItems);
-            };
-            const handleDelete = (id) => { onUpdate(items.filter(item => item.id !== id)); };
-            const handleAdd = () => {
-                const newItem = { 
-                    id: Date.now().toString(36) + Math.random().toString(36).substr(2), 
-                    name: 'Standard Expense', 
-                    expected: 0,
-                    day: '',
-                    priority: 'low',
-                    paymentMethod: 'cash'
-                };
-                onUpdate([...items, newItem]);
-            };
-
+            const handleChange = (id, field, value) => onUpdate(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+            const handleDelete = (id) => onUpdate(items.filter(item => item.id !== id));
+            const handleAdd = () => onUpdate([...items, { id: Date.now().toString(36) + Math.random().toString(36).substr(2), name: 'Standard Expense', expected: 0, day: '', priority: 'low', paymentMethod: 'cash' }]);
+            
             const cyclePriority = (id, currentPriority) => {
                 let nextPriority = 'low';
                 if (!currentPriority || currentPriority === 'low') nextPriority = 'medium';
@@ -267,27 +503,27 @@
             };
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col">
-                        <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-indigo-50 rounded-t-xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-4xl max-h-[85vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-900 rounded-t-xl">
                             <div>
-                                <h3 className="text-lg font-bold text-indigo-900 flex items-center gap-2"><Icons.FileText size={20}/> Expense Template</h3>
-                                <p className="text-sm text-indigo-700">Define your standard monthly bills here. Load this template into any month to start fresh.</p>
+                                <h3 className="text-lg font-bold text-indigo-400 flex items-center gap-2"><Icons.FileText size={20}/> Expense Template</h3>
+                                <p className="text-sm text-slate-400">Define your standard monthly bills here. Load this template into any month to start fresh.</p>
                             </div>
-                            <button type="button" onClick={onClose} className="text-indigo-700 hover:text-indigo-900 p-1"><Icons.X size={24} /></button>
+                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200 p-1"><Icons.X size={24} /></button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-0">
                             {items.length === 0 ? (
-                                <div className="text-center py-12 text-slate-400">
+                                <div className="text-center py-12 text-slate-500">
                                     <Icons.FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                     <p>Your template is currently empty.</p>
-                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-600 font-medium hover:underline">Add your first template item</button>
+                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-400 font-medium hover:underline">Add your first template item</button>
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto min-w-full inline-block align-middle">
                                     <table className="min-w-[600px] w-full text-left border-collapse">
                                         <thead>
-                                            <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider sticky top-0 z-10 shadow-sm">
+                                            <tr className="bg-slate-950 text-slate-400 text-xs uppercase tracking-wider sticky top-0 z-10 shadow-sm border-b border-slate-800">
                                                 <th className="px-3 py-3 font-semibold w-10 text-center">Prio</th>
                                                 <th className="px-3 py-3 font-semibold w-10 text-center">Via</th>
                                                 <th className="px-3 py-3 font-semibold w-24">Due Date</th>
@@ -296,18 +532,18 @@
                                                 <th className="px-2 py-3 w-10 text-center"></th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100">
+                                        <tbody className="divide-y divide-slate-800/50">
                                             {items.map(item => {
                                                 const priority = item.priority || 'low';
                                                 const priorityStyle = PRIORITIES[priority];
                                                 
                                                 let methodIcon = <Icons.Banknote size={18} />;
-                                                let methodClass = "bg-slate-100 text-slate-400 hover:bg-slate-200";
-                                                if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={18} />; methodClass = "bg-slate-800 text-white hover:bg-slate-700"; }
-                                                else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={18} />; methodClass = "bg-orange-100 text-orange-600 hover:bg-orange-200"; }
+                                                let methodClass = "bg-slate-800 text-slate-400 hover:bg-slate-700";
+                                                if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={18} />; methodClass = "bg-slate-950 text-slate-200 hover:bg-black border border-slate-800"; }
+                                                else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={18} />; methodClass = "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30"; }
 
                                                 return (
-                                                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                                                    <tr key={item.id} className="hover:bg-slate-800/50 transition-colors">
                                                         <td className="px-3 py-2 text-center">
                                                             <button type="button" onClick={() => cyclePriority(item.id, priority)} className={`p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border ${priorityStyle.border} ${priorityStyle.bg} ${priorityStyle.color} transition-all`}>{priorityStyle.label}</button>
                                                         </td>
@@ -315,16 +551,16 @@
                                                             <button type="button" onClick={() => cyclePaymentMethod(item.id, item.paymentMethod)} className={`p-1.5 rounded-md transition-all ${methodClass}`}>{methodIcon}</button>
                                                         </td>
                                                         <td className="px-3 py-2">
-                                                            <input type="text" value={item.day || ''} onChange={(e) => handleChange(item.id, 'day', e.target.value)} placeholder="Due" className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-600 text-xs text-center font-medium placeholder-slate-300"/>
+                                                            <input type="text" value={item.day || ''} onChange={(e) => handleChange(item.id, 'day', e.target.value)} placeholder="Due" className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-300 text-xs text-center font-medium placeholder-slate-600"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} placeholder="Item Name..." className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-700 placeholder-slate-400 font-medium"/>
+                                                            <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} placeholder="Item Name..." className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-200 placeholder-slate-600 font-medium"/>
                                                         </td>
                                                         <td className="px-4 py-2">
-                                                            <div className="relative"><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₱</span><input type="number" value={item.expected} onChange={(e) => handleChange(item.id, 'expected', parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 pl-3 py-1 text-right text-slate-700 font-mono text-sm"/></div>
+                                                            <div className="relative"><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-500 text-xs">₱</span><input type="number" value={item.expected} onChange={(e) => handleChange(item.id, 'expected', parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 pl-3 py-1 text-right text-slate-200 font-mono text-sm"/></div>
                                                         </td>
                                                         <td className="px-2 py-2 text-center">
-                                                            <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 transition-colors p-1"><Icons.Trash2 size={16} /></button>
+                                                            <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-500 hover:text-rose-400 transition-colors p-1"><Icons.Trash2 size={16} /></button>
                                                         </td>
                                                     </tr>
                                                 );
@@ -334,9 +570,9 @@
                                 </div>
                             )}
                         </div>
-                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-xl z-10">
-                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-lg hover:border-indigo-400 hover:text-indigo-600 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Template Item</button>
-                            <div className="flex justify-between items-center text-lg font-bold text-slate-800"><span>Total Expected Base</span><span className="text-indigo-600">₱{total.toLocaleString()}</span></div>
+                        <div className="p-6 border-t border-slate-800 bg-slate-900 rounded-b-xl z-10">
+                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-700 text-slate-400 rounded-lg hover:border-indigo-500 hover:text-indigo-400 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Template Item</button>
+                            <div className="flex justify-between items-center text-lg font-bold text-slate-100"><span>Total Expected Base</span><span className="text-indigo-400">₱{total.toLocaleString()}</span></div>
                             <button type="button" onClick={onClose} className="w-full mt-4 bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
                         </div>
                     </div>
@@ -348,47 +584,41 @@
             if (!isOpen) return null;
             const total = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
-            const handleChange = (id, field, value) => {
-                const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
-                onUpdate(newItems);
-            };
-            const handleDelete = (id) => { onUpdate(items.filter(item => item.id !== id)); };
-            const handleAdd = () => {
-                const newItem = { id: Date.now().toString(36) + Math.random().toString(36).substr(2), name: 'New Client/Project', amount: 0 };
-                onUpdate([...items, newItem]);
-            };
+            const handleChange = (id, field, value) => onUpdate(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+            const handleDelete = (id) => onUpdate(items.filter(item => item.id !== id));
+            const handleAdd = () => onUpdate([...items, { id: Date.now().toString(36) + Math.random().toString(36).substr(2), name: 'New Client/Project', amount: 0 }]);
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
-                        <div className="flex justify-between items-center p-6 border-b border-slate-100">
-                            <div><h3 className="text-lg font-bold text-slate-900">Income Sources</h3><p className="text-sm text-slate-500">{month} 2026</p></div>
-                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1"><Icons.X size={24} /></button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-lg max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-800">
+                            <div><h3 className="text-lg font-bold text-slate-100">Income Sources</h3><p className="text-sm text-slate-400">{month} 2026</p></div>
+                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200 p-1"><Icons.X size={24} /></button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-4">
                             {items.length === 0 ? (
-                                <div className="text-center py-8 text-slate-400">
+                                <div className="text-center py-8 text-slate-500">
                                     <Icons.Wallet className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                     <p>No income sources added yet.</p>
-                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-600 font-medium hover:underline">Add your first source</button>
+                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-400 font-medium hover:underline">Add your first source</button>
                                 </div>
                             ) : (
                                 items.map(item => (
-                                    <div key={item.id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <div key={item.id} className="flex items-center gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800">
                                         <div className="flex-1">
-                                            <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:outline-none" placeholder="Source Name"/>
+                                            <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm font-medium text-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-600" placeholder="Source Name"/>
                                         </div>
                                         <div className="w-32">
-                                            <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-bold text-right text-emerald-600 focus:border-indigo-500 focus:outline-none" placeholder="0"/>
+                                            <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm font-bold text-right text-emerald-400 focus:border-indigo-500 focus:outline-none placeholder-slate-600" placeholder="0"/>
                                         </div>
-                                        <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-1.5"><Icons.Trash2 size={18} /></button>
+                                        <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-500 hover:text-rose-400 p-1.5"><Icons.Trash2 size={18} /></button>
                                     </div>
                                 ))
                             )}
                         </div>
-                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-xl">
-                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-lg hover:border-indigo-400 hover:text-indigo-600 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Income Source</button>
-                            <div className="flex justify-between items-center text-lg font-bold text-slate-800"><span>Total Income</span><span className="text-emerald-600">₱{total.toLocaleString()}</span></div>
+                        <div className="p-6 border-t border-slate-800 bg-slate-900 rounded-b-xl">
+                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-700 text-slate-400 rounded-lg hover:border-indigo-500 hover:text-indigo-400 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Income Source</button>
+                            <div className="flex justify-between items-center text-lg font-bold text-slate-100"><span>Total Income</span><span className="text-emerald-400">₱{total.toLocaleString()}</span></div>
                             <button type="button" onClick={onClose} className="w-full mt-4 bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
                         </div>
                     </div>
@@ -400,20 +630,9 @@
             if (!isOpen) return null;
             const total = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
-            const handleChange = (id, field, value) => {
-                const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
-                onUpdate(newItems);
-            };
-            const handleDelete = (id) => { onUpdate(items.filter(item => item.id !== id)); };
-            const handleAdd = () => {
-                const newItem = { 
-                    id: Date.now().toString(36) + Math.random().toString(36).substr(2), 
-                    name: 'Extra Item', 
-                    amount: 0,
-                    paymentMethod: 'cash'
-                };
-                onUpdate([...items, newItem]);
-            };
+            const handleChange = (id, field, value) => onUpdate(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+            const handleDelete = (id) => onUpdate(items.filter(item => item.id !== id));
+            const handleAdd = () => onUpdate([...items, { id: Date.now().toString(36) + Math.random().toString(36).substr(2), name: 'Extra Item', amount: 0, paymentMethod: 'cash' }]);
 
             const cyclePaymentMethod = (id, currentMethod) => {
                 let nextMethod = 'cash';
@@ -424,45 +643,44 @@
             };
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
-                        <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-amber-50 rounded-t-xl">
-                            <div><h3 className="text-lg font-bold text-amber-900">Extra Expenses</h3><p className="text-sm text-amber-700">{month} 2026</p></div>
-                            <button type="button" onClick={onClose} className="text-amber-700 hover:text-amber-900 p-1"><Icons.X size={24} /></button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-lg max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-amber-500/10 rounded-t-xl">
+                            <div><h3 className="text-lg font-bold text-amber-400">Extra Expenses</h3><p className="text-sm text-slate-400">{month} 2026</p></div>
+                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200 p-1"><Icons.X size={24} /></button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-4">
                             {items.length === 0 ? (
-                                <div className="text-center py-8 text-slate-400">
+                                <div className="text-center py-8 text-slate-500">
                                     <Icons.ListPlus className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                     <p>No extra expenses logged.</p>
-                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-600 font-medium hover:underline">Add extra expense</button>
+                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-400 font-medium hover:underline">Add extra expense</button>
                                 </div>
                             ) : (
                                 items.map(item => {
                                     let methodIcon = <Icons.Banknote size={16} />;
-                                    let methodClass = "bg-slate-100 text-slate-400";
-                                    let methodTitle = "Cash";
-                                    if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={16} />; methodClass = "bg-slate-800 text-white"; methodTitle = "Maya"; }
-                                    else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={16} />; methodClass = "bg-orange-100 text-orange-600"; methodTitle = "UnionBank"; }
+                                    let methodClass = "bg-slate-800 text-slate-400 hover:bg-slate-700";
+                                    if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={16} />; methodClass = "bg-slate-950 border border-slate-800 text-slate-200"; }
+                                    else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={16} />; methodClass = "bg-orange-500/20 text-orange-400"; }
 
                                     return (
-                                        <div key={item.id} className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                            <button type="button" onClick={() => cyclePaymentMethod(item.id, item.paymentMethod)} className={`p-1.5 rounded-md transition-all flex-shrink-0 ${methodClass}`} title={methodTitle}>{methodIcon}</button>
+                                        <div key={item.id} className="flex items-center gap-2 bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                            <button type="button" onClick={() => cyclePaymentMethod(item.id, item.paymentMethod)} className={`p-1.5 rounded-md transition-all flex-shrink-0 ${methodClass}`}>{methodIcon}</button>
                                             <div className="flex-1">
-                                                <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:outline-none" placeholder="Item Name"/>
+                                                <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm font-medium text-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-600" placeholder="Item Name"/>
                                             </div>
                                             <div className="w-24">
-                                                <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-bold text-right text-rose-600 focus:border-indigo-500 focus:outline-none" placeholder="0"/>
+                                                <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm font-bold text-right text-rose-400 focus:border-indigo-500 focus:outline-none placeholder-slate-600" placeholder="0"/>
                                             </div>
-                                            <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-1.5"><Icons.Trash2 size={18} /></button>
+                                            <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-500 hover:text-rose-400 p-1.5"><Icons.Trash2 size={18} /></button>
                                         </div>
                                     );
                                 })
                             )}
                         </div>
-                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-xl">
-                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-lg hover:border-indigo-400 hover:text-indigo-600 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Extra Expense</button>
-                            <div className="flex justify-between items-center text-lg font-bold text-slate-800"><span>Total Extra</span><span className="text-rose-600">₱{total.toLocaleString()}</span></div>
+                        <div className="p-6 border-t border-slate-800 bg-slate-900 rounded-b-xl">
+                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-700 text-slate-400 rounded-lg hover:border-indigo-500 hover:text-indigo-400 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Extra Expense</button>
+                            <div className="flex justify-between items-center text-lg font-bold text-slate-100"><span>Total Extra</span><span className="text-rose-400">₱{total.toLocaleString()}</span></div>
                             <button type="button" onClick={onClose} className="w-full mt-4 bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
                         </div>
                     </div>
@@ -474,20 +692,9 @@
             if (!isOpen) return null;
             const total = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
-            const handleChange = (id, field, value) => {
-                const newItems = items.map(item => item.id === id ? { ...item, [field]: value } : item);
-                onUpdate(newItems);
-            };
-            const handleDelete = (id) => { onUpdate(items.filter(item => item.id !== id)); };
-            const handleAdd = () => {
-                const newItem = { 
-                    id: Date.now().toString(36) + Math.random().toString(36).substr(2), 
-                    name: 'Game Purchase', 
-                    amount: 0,
-                    paymentMethod: 'cash'
-                };
-                onUpdate([...items, newItem]);
-            };
+            const handleChange = (id, field, value) => onUpdate(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+            const handleDelete = (id) => onUpdate(items.filter(item => item.id !== id));
+            const handleAdd = () => onUpdate([...items, { id: Date.now().toString(36) + Math.random().toString(36).substr(2), name: 'Game Purchase', amount: 0, paymentMethod: 'cash' }]);
 
             const cyclePaymentMethod = (id, currentMethod) => {
                 let nextMethod = 'cash';
@@ -498,45 +705,44 @@
             };
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
-                        <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-purple-50 rounded-t-xl">
-                            <div><h3 className="text-lg font-bold text-purple-900">Game Expenses</h3><p className="text-sm text-purple-700">{month} 2026</p></div>
-                            <button type="button" onClick={onClose} className="text-purple-700 hover:text-purple-900 p-1"><Icons.X size={24} /></button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 w-full max-w-lg max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-purple-500/10 rounded-t-xl">
+                            <div><h3 className="text-lg font-bold text-purple-400">Game Expenses</h3><p className="text-sm text-slate-400">{month} 2026</p></div>
+                            <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200 p-1"><Icons.X size={24} /></button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-4">
                             {items.length === 0 ? (
-                                <div className="text-center py-8 text-slate-400">
+                                <div className="text-center py-8 text-slate-500">
                                     <Icons.Gamepad2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                     <p>No game expenses logged.</p>
-                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-600 font-medium hover:underline">Add game expense</button>
+                                    <button type="button" onClick={handleAdd} className="mt-2 text-indigo-400 font-medium hover:underline">Add game expense</button>
                                 </div>
                             ) : (
                                 items.map(item => {
                                     let methodIcon = <Icons.Banknote size={16} />;
-                                    let methodClass = "bg-slate-100 text-slate-400";
-                                    let methodTitle = "Cash";
-                                    if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={16} />; methodClass = "bg-slate-800 text-white"; methodTitle = "Maya"; }
-                                    else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={16} />; methodClass = "bg-orange-100 text-orange-600"; methodTitle = "UnionBank"; }
+                                    let methodClass = "bg-slate-800 text-slate-400 hover:bg-slate-700";
+                                    if (item.paymentMethod === 'maya') { methodIcon = <Icons.Smartphone size={16} />; methodClass = "bg-slate-950 border border-slate-800 text-slate-200"; }
+                                    else if (item.paymentMethod === 'unionbank') { methodIcon = <Icons.CreditCard size={16} />; methodClass = "bg-orange-500/20 text-orange-400"; }
 
                                     return (
-                                        <div key={item.id} className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                            <button type="button" onClick={() => cyclePaymentMethod(item.id, item.paymentMethod)} className={`p-1.5 rounded-md transition-all flex-shrink-0 ${methodClass}`} title={methodTitle}>{methodIcon}</button>
+                                        <div key={item.id} className="flex items-center gap-2 bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                            <button type="button" onClick={() => cyclePaymentMethod(item.id, item.paymentMethod)} className={`p-1.5 rounded-md transition-all flex-shrink-0 ${methodClass}`} title={item.paymentMethod}>{methodIcon}</button>
                                             <div className="flex-1">
-                                                <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:outline-none" placeholder="Game Name"/>
+                                                <input type="text" value={item.name} onChange={(e) => handleChange(item.id, 'name', e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm font-medium text-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-600" placeholder="Game Name"/>
                                             </div>
                                             <div className="w-24">
-                                                <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-sm font-bold text-right text-rose-600 focus:border-indigo-500 focus:outline-none" placeholder="0"/>
+                                                <input type="number" value={item.amount} onChange={(e) => handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm font-bold text-right text-rose-400 focus:border-indigo-500 focus:outline-none placeholder-slate-600" placeholder="0"/>
                                             </div>
-                                            <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-1.5"><Icons.Trash2 size={18} /></button>
+                                            <button type="button" onClick={() => handleDelete(item.id)} className="text-slate-500 hover:text-rose-400 p-1.5"><Icons.Trash2 size={18} /></button>
                                         </div>
                                     );
                                 })
                             )}
                         </div>
-                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-xl">
-                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-lg hover:border-indigo-400 hover:text-indigo-600 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Game Expense</button>
-                            <div className="flex justify-between items-center text-lg font-bold text-slate-800"><span>Total Games</span><span className="text-rose-600">₱{total.toLocaleString()}</span></div>
+                        <div className="p-6 border-t border-slate-800 bg-slate-900 rounded-b-xl">
+                            <button type="button" onClick={handleAdd} className="w-full py-2 mb-4 border-2 border-dashed border-slate-700 text-slate-400 rounded-lg hover:border-indigo-500 hover:text-indigo-400 font-medium transition-colors flex items-center justify-center gap-2"><Icons.Plus size={18} /> Add Game Expense</button>
+                            <div className="flex justify-between items-center text-lg font-bold text-slate-100"><span>Total Games</span><span className="text-rose-400">₱{total.toLocaleString()}</span></div>
                             <button type="button" onClick={onClose} className="w-full mt-4 bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
                         </div>
                     </div>
@@ -589,11 +795,11 @@
 
             return (
                 <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 transition-all duration-300 ${isPrivacyMode ? 'privacy-blur' : ''}`}>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col">
+                <div className="bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-800 lg:col-span-2 flex flex-col">
                     <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2"><Icons.BarChart3 className="w-4 h-4" />2026 Spending Trend</h3>
-                    <div className="flex gap-4 text-xs font-medium">
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-indigo-200"></div> Budget</div>
+                    <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2"><Icons.BarChart3 className="w-4 h-4" />2026 Spending Trend</h3>
+                    <div className="flex gap-4 text-xs font-medium text-slate-300">
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-indigo-500/50"></div> Budget</div>
                         <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> All Spending</div>
                     </div>
                     </div>
@@ -604,33 +810,33 @@
                         return (
                         <div key={data.month} className="flex flex-col justify-end items-center w-full h-full group relative">
                             <div className="flex items-end gap-1 h-full w-full justify-center px-0.5">
-                                <div className="w-1.5 sm:w-3 bg-indigo-200 rounded-t-sm transition-all duration-500" style={{ height: `${hExpected}%` }}></div>
+                                <div className="w-1.5 sm:w-3 bg-indigo-500/30 rounded-t-sm transition-all duration-500" style={{ height: `${hExpected}%` }}></div>
                                 <div className={`w-1.5 sm:w-3 rounded-t-sm transition-all duration-500 ${data.actual > data.expected ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ height: `${hActual}%` }}></div>
                             </div>
-                            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs rounded py-1 px-2 pointer-events-none z-10 whitespace-nowrap">
+                            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-slate-100 text-xs rounded py-1 px-2 pointer-events-none z-10 whitespace-nowrap shadow-xl">
                                 <p className="font-bold">{data.month}</p>
                                 <p>Income: ₱{(data.income || 0).toLocaleString()}</p>
                                 <p>Budget: ₱{data.expected.toLocaleString()}</p>
                                 <p>Total Out: ₱{data.actual.toLocaleString()}</p>
                             </div>
-                            <span className="text-[10px] sm:text-xs text-slate-400 mt-2 font-medium">{SHORT_MONTHS[idx]}</span>
+                            <span className="text-[10px] sm:text-xs text-slate-500 mt-2 font-medium">{SHORT_MONTHS[idx]}</span>
                         </div>
                         );
                     })}
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-                    <h3 className="text-sm font-semibold text-slate-500 mb-6 uppercase tracking-wider flex items-center gap-2"><Icons.PieChart className="w-4 h-4" />Total Year Overview</h3>
+                <div className="bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-800 flex flex-col">
+                    <h3 className="text-sm font-semibold text-slate-400 mb-6 uppercase tracking-wider flex items-center gap-2"><Icons.PieChart className="w-4 h-4" />Total Year Overview</h3>
                     <div className="flex-1 flex flex-col items-center justify-center relative">
-                    <div className="w-40 h-40 rounded-full relative" style={{background: `conic-gradient(${pieColor} 0% ${spentPercentage}%, #e2e8f0 ${spentPercentage}% 100%)`}}>
-                        <div className="absolute inset-0 m-auto w-32 h-32 bg-white rounded-full flex flex-col items-center justify-center">
+                    <div className="w-40 h-40 rounded-full relative" style={{background: `conic-gradient(${pieColor} 0% ${spentPercentage}%, #1e293b ${spentPercentage}% 100%)`}}>
+                        <div className="absolute inset-0 m-auto w-32 h-32 bg-slate-900 rounded-full flex flex-col items-center justify-center">
                         <span className="text-xs text-slate-400 font-medium uppercase">Total Spent</span>
-                        <span className="text-lg font-bold text-slate-800">₱{yearlyStats.totalActual.toLocaleString(undefined, { maximumFractionDigits: 0, notation: "compact" })}</span>
+                        <span className="text-lg font-bold text-slate-100">₱{yearlyStats.totalActual.toLocaleString(undefined, { maximumFractionDigits: 0, notation: "compact" })}</span>
                         </div>
                     </div>
                     <div className="w-full mt-6 space-y-3">
-                        <div className="flex justify-between text-sm"><span className="text-slate-500">Total Budget (2026)</span><span className="font-semibold text-slate-700">₱{yearlyStats.totalExpected.toLocaleString()}</span></div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-500">Remaining Budget</span><span className={`font-semibold ${yearlyStats.totalExpected - yearlyStats.totalActual < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>₱{(yearlyStats.totalExpected - yearlyStats.totalActual).toLocaleString()}</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">Total Budget (2026)</span><span className="font-semibold text-slate-200">₱{yearlyStats.totalExpected.toLocaleString()}</span></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-400">Remaining Budget</span><span className={`font-semibold ${yearlyStats.totalExpected - yearlyStats.totalActual < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>₱{(yearlyStats.totalExpected - yearlyStats.totalActual).toLocaleString()}</span></div>
                     </div>
                     </div>
                 </div>
@@ -644,41 +850,41 @@
             const actualHeight = Math.max(0, Math.min(100, (actual / maxVal) * 100));
 
             return (
-                <div className={`bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-64 flex flex-col transition-all duration-300 ${isPrivacyMode ? 'privacy-blur' : ''}`}>
-                    <h3 className="text-sm font-semibold text-slate-500 mb-6 uppercase tracking-wider flex items-center gap-2">
+                <div className={`bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-800 h-64 flex flex-col transition-all duration-300 ${isPrivacyMode ? 'privacy-blur' : ''}`}>
+                    <h3 className="text-sm font-semibold text-slate-400 mb-6 uppercase tracking-wider flex items-center gap-2">
                         <Icons.Wallet className="w-4 h-4" />Monthly Overview
                     </h3>
                     
                     <div className="flex-1 flex items-end justify-around gap-8 px-4">
                         
                         <div className="w-full max-w-[100px] flex flex-col items-center gap-2 group">
-                            <div className="text-xs font-medium text-slate-500 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="text-xs font-medium text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 ₱{expected.toLocaleString()}
                             </div>
                             
-                            <div className="h-32 w-full flex items-end bg-gray-50 rounded-t-lg relative"> 
+                            <div className="h-32 w-full flex items-end bg-slate-800 rounded-t-lg relative"> 
                                 <div 
-                                    className="w-full bg-indigo-500 rounded-t-lg transition-all duration-500 relative z-10" 
+                                    className="w-full bg-indigo-500/80 rounded-t-lg transition-all duration-500 relative z-10" 
                                     style={{ height: `${expectedHeight}%` }}
                                 ></div>
                             </div>
                             
-                            <span className="text-sm font-medium text-slate-600">Expected</span>
+                            <span className="text-sm font-medium text-slate-300">Expected</span>
                         </div>
 
                         <div className="w-full max-w-[100px] flex flex-col items-center gap-2 group">
-                            <div className="text-xs font-medium text-slate-500 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="text-xs font-medium text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 ₱{actual.toLocaleString()}
                             </div>
                             
-                            <div className="h-32 w-full flex items-end bg-gray-50 rounded-t-lg relative">
+                            <div className="h-32 w-full flex items-end bg-slate-800 rounded-t-lg relative">
                                 <div 
                                     className={`w-full rounded-t-lg transition-all duration-500 relative z-10 ${actual > expected ? 'bg-rose-500' : 'bg-emerald-500'}`} 
                                     style={{ height: `${actualHeight}%` }}
                                 ></div>
                             </div>
                             
-                            <span className="text-sm font-medium text-slate-600">Cash+Extra+Games</span>
+                            <span className="text-sm font-medium text-slate-300">Cash+Extra+Games</span>
                         </div>
                     </div>
                 </div>
@@ -687,18 +893,32 @@
 
         const StatCard = ({ title, amount, type, icon: Icon, onEdit, isPrivacyMode }) => {
             const isNegative = amount < 0;
-            let colorClass = "text-slate-700";
-            if (type === 'balance') colorClass = isNegative ? "text-rose-600" : "text-emerald-600";
-            if (type === 'expense') colorClass = "text-rose-600";
-            if (type === 'income') colorClass = "text-emerald-600";
-            if (type === 'credit') colorClass = "text-orange-600";
+            let colorClass = "text-slate-100";
+            let bgClass = "bg-slate-800 text-slate-400";
+
+            if (type === 'balance') {
+                colorClass = isNegative ? "text-rose-400" : "text-emerald-400";
+                bgClass = "bg-blue-500/10 text-blue-400";
+            }
+            if (type === 'expense') {
+                colorClass = "text-rose-400";
+                bgClass = "bg-rose-500/10 text-rose-400";
+            }
+            if (type === 'income') {
+                colorClass = "text-emerald-400";
+                bgClass = "bg-emerald-500/10 text-emerald-400";
+            }
+            if (type === 'credit') {
+                colorClass = "text-orange-400";
+                bgClass = "bg-orange-500/10 text-orange-400";
+            }
 
             return (
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-start justify-between relative group">
+                <div className="bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-800 flex items-start justify-between relative group">
                 <div className="w-full">
                     <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-medium text-slate-500">{title}</p>
-                        {onEdit && !isPrivacyMode && (<button type="button" onClick={onEdit} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-indigo-600" title="Edit Details"><Icons.Edit2 size={14} /></button>)}
+                        <p className="text-sm font-medium text-slate-400">{title}</p>
+                        {onEdit && !isPrivacyMode && (<button type="button" onClick={onEdit} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-indigo-400" title="Edit Details"><Icons.Edit2 size={14} /></button>)}
                     </div>
                     <div className="flex items-center">
                         {isPrivacyMode ? (
@@ -708,7 +928,7 @@
                         )}
                     </div>
                 </div>
-                <div className={`p-3 rounded-lg ${type === 'balance' ? 'bg-blue-50 text-blue-600' : type === 'expense' ? 'bg-rose-50 text-rose-600' : type === 'credit' ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                <div className={`p-3 rounded-lg ${bgClass}`}>
                     <Icon size={20} />
                 </div>
                 </div>
@@ -720,35 +940,35 @@
             const remaining = limit - used;
             
             return (
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative group">
+                <div className="bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-800 relative group">
                     {onEdit && !isPrivacyMode && (
-                        <button type="button" onClick={onEdit} className="absolute top-4 right-4 text-slate-300 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                        <button type="button" onClick={onEdit} className="absolute top-4 right-4 text-slate-500 hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
                             <Icons.Edit2 size={14} />
                         </button>
                     )}
                     <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-2">
-                             <div className={`p-2 rounded-lg bg-slate-50 ${colorClass}`}>
+                             <div className={`p-2 rounded-lg bg-slate-950 border border-slate-800 ${colorClass}`}>
                                 <Icon size={20} />
                              </div>
                              <div>
-                                <h3 className="font-bold text-slate-900">{title}</h3>
-                                <p className="text-xs text-slate-400">Global Usage (Yearly)</p>
+                                <h3 className="font-bold text-slate-100">{title}</h3>
+                                <p className="text-xs text-slate-500">Global Usage (Yearly)</p>
                              </div>
                         </div>
                         <div className="text-right">
-                             <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Available</span>
-                             <p className={`font-bold ${remaining < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Available</span>
+                             <p className={`font-bold ${remaining < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
                                 {isPrivacyMode ? '₱ ****' : `₱${remaining.toLocaleString()}`}
                              </p>
                         </div>
                     </div>
                     <div className="space-y-1">
                         <div className="flex justify-between text-sm">
-                            <span className="text-slate-500">Used: <span className="font-semibold text-slate-800">{isPrivacyMode ? '₱ ****' : `₱${used.toLocaleString()}`}</span></span>
-                            <span className="text-xs text-slate-400">Limit: {isPrivacyMode ? '₱ ****' : `₱${limit.toLocaleString()}`}</span>
+                            <span className="text-slate-400">Used: <span className="font-semibold text-slate-200">{isPrivacyMode ? '₱ ****' : `₱${used.toLocaleString()}`}</span></span>
+                            <span className="text-xs text-slate-500">Limit: {isPrivacyMode ? '₱ ****' : `₱${limit.toLocaleString()}`}</span>
                         </div>
-                        <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
                              <div 
                                 className={`h-full rounded-full transition-all duration-500 ${barColorClass}`}
                                 style={{ width: `${percentage}%` }}
@@ -760,9 +980,9 @@
         };
 
         const BillAlert = ({ type, amount, month, onAdd }) => (
-            <div className={`mb-6 p-4 rounded-xl border flex items-center justify-between ${type === 'maya' ? 'bg-slate-900 text-white border-slate-800' : 'bg-orange-50 text-orange-900 border-orange-200'}`}>
+            <div className={`mb-6 p-4 rounded-xl border flex items-center justify-between ${type === 'maya' ? 'bg-slate-800 text-white border-slate-700' : 'bg-orange-950 text-orange-200 border-orange-900'}`}>
                 <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${type === 'maya' ? 'bg-slate-800' : 'bg-orange-100'}`}>
+                    <div className={`p-2 rounded-lg ${type === 'maya' ? 'bg-slate-900' : 'bg-orange-900/50'}`}>
                         {type === 'maya' ? <Icons.Smartphone size={20}/> : <Icons.CreditCard size={20}/>}
                     </div>
                     <div>
@@ -773,41 +993,48 @@
                 <button 
                     type="button"
                     onClick={onAdd}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${type === 'maya' ? 'bg-white text-slate-900 hover:bg-slate-200' : 'bg-orange-500 text-white hover:bg-orange-600'}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${type === 'maya' ? 'bg-slate-100 text-slate-900 hover:bg-white' : 'bg-orange-500 text-white hover:bg-orange-600'}`}
                 >
                     Add Bill to Expenses
                 </button>
             </div>
         );
 
-        // --- MAIN APP ---
-        
         function App() {
+            const [isConfigured, setIsConfigured] = useState(!!localStorage.getItem('gh_token'));
             const [selectedMonth, setSelectedMonth] = useState("January");
             const [yearData, setYearData] = useState({});
             const [incomeData, setIncomeData] = useState({});
             const [extrasData, setExtrasData] = useState({});
             const [gamesData, setGamesData] = useState({}); 
             const [creditLimits, setCreditLimits] = useState({ maya: 18000, unionbank: 15000 });
-            const [templateData, setTemplateData] = useState([]); // NEW: State for Template Items
+            const [templateData, setTemplateData] = useState([]);
             
             const [loading, setLoading] = useState(true);
             const [saving, setSaving] = useState(false);
+            const [clipboard, setClipboard] = useState(null);
+            const [copyStatus, setCopyStatus] = useState('');
             const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
             const [isExtrasModalOpen, setIsExtrasModalOpen] = useState(false);
             const [isGamesModalOpen, setIsGamesModalOpen] = useState(false);
-            const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false); // NEW: Template Modal State
+            const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
             const [isDataModalOpen, setIsDataModalOpen] = useState(false); 
             const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+            const [isGistModalOpen, setIsGistModalOpen] = useState(false);
             
+            // ALERT STATE
+            const [alertMsg, setAlertMsg] = useState('');
+
             // PRIVACY STATE
             const [isPrivacyMode, setIsPrivacyMode] = useState(false);
-            const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
 
-            // SORT STATE
             const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
             useEffect(() => {
+                if (!isConfigured) {
+                    setLoading(false);
+                    return;
+                }
                 const loadData = () => {
                     try {
                         const savedData = localStorage.getItem('budget_2026_data');
@@ -816,6 +1043,7 @@
                         const savedGames = localStorage.getItem('budget_2026_games');
                         const savedLimits = localStorage.getItem('budget_2026_limits');
                         const savedTemplate = localStorage.getItem('budget_2026_template');
+                        const savedClipboard = localStorage.getItem('budget_clipboard');
                         
                         if (savedData) setYearData(JSON.parse(savedData));
                         if (savedIncome) {
@@ -831,75 +1059,54 @@
                         if (savedGames) setGamesData(JSON.parse(savedGames));
                         if (savedLimits) setCreditLimits(JSON.parse(savedLimits));
                         if (savedTemplate) setTemplateData(JSON.parse(savedTemplate));
+                        if (savedClipboard) setClipboard(JSON.parse(savedClipboard));
                     } catch (e) { console.error("Error loading data", e); }
                     setLoading(false);
                 };
-                setTimeout(loadData, 500);
-            }, []);
+                setTimeout(loadData, 300);
+            }, [isConfigured]);
 
             const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
             const saveDataToStorage = (newData, newIncomeData, newExtrasData, newGamesData, newLimits, newTemplateData) => {
                 setSaving(true);
-                if (newData) {
-                    setYearData(newData);
-                    localStorage.setItem('budget_2026_data', JSON.stringify(newData));
-                }
-                if (newIncomeData) {
-                    setIncomeData(newIncomeData);
-                    localStorage.setItem('budget_2026_income', JSON.stringify(newIncomeData));
-                }
-                if (newExtrasData) {
-                    setExtrasData(newExtrasData);
-                    localStorage.setItem('budget_2026_extras', JSON.stringify(newExtrasData));
-                }
-                if (newGamesData) {
-                    setGamesData(newGamesData);
-                    localStorage.setItem('budget_2026_games', JSON.stringify(newGamesData));
-                }
-                if (newLimits) {
-                    setCreditLimits(newLimits);
-                    localStorage.setItem('budget_2026_limits', JSON.stringify(newLimits));
-                }
-                if (newTemplateData) {
-                    setTemplateData(newTemplateData);
-                    localStorage.setItem('budget_2026_template', JSON.stringify(newTemplateData));
-                }
+                if (newData) { setYearData(newData); localStorage.setItem('budget_2026_data', JSON.stringify(newData)); }
+                if (newIncomeData) { setIncomeData(newIncomeData); localStorage.setItem('budget_2026_income', JSON.stringify(newIncomeData)); }
+                if (newExtrasData) { setExtrasData(newExtrasData); localStorage.setItem('budget_2026_extras', JSON.stringify(newExtrasData)); }
+                if (newGamesData) { setGamesData(newGamesData); localStorage.setItem('budget_2026_games', JSON.stringify(newGamesData)); }
+                if (newLimits) { setCreditLimits(newLimits); localStorage.setItem('budget_2026_limits', JSON.stringify(newLimits)); }
+                if (newTemplateData) { setTemplateData(newTemplateData); localStorage.setItem('budget_2026_template', JSON.stringify(newTemplateData)); }
                 setTimeout(() => setSaving(false), 600);
             };
 
-            const togglePrivacy = () => {
-                if (isPrivacyMode) {
-                    setIsUnlockModalOpen(true);
-                } else {
-                    setIsPrivacyMode(true);
+            const handleImportDataObj = (imported) => {
+                if (imported.yearData) {
+                    setYearData(imported.yearData);
+                    if(imported.incomeData) setIncomeData(imported.incomeData);
+                    if(imported.extrasData) setExtrasData(imported.extrasData);
+                    if(imported.gamesData) setGamesData(imported.gamesData);
+                    if(imported.creditLimits) setCreditLimits(imported.creditLimits);
+                    if(imported.templateData) setTemplateData(imported.templateData);
+                    
+                    saveDataToStorage(
+                        imported.yearData, imported.incomeData, imported.extrasData, 
+                        imported.gamesData, imported.creditLimits, imported.templateData
+                    );
                 }
             };
 
-            const handleUnlock = () => {
-                setIsPrivacyMode(false);
-                setIsUnlockModalOpen(false);
-            };
+            const togglePrivacy = () => { setIsPrivacyMode(!isPrivacyMode); };
 
-            // --- DATA MANAGEMENT ---
+            const getFullDataExport = () => ({
+                yearData, incomeData, extrasData, gamesData, creditLimits, templateData, timestamp: new Date().toISOString()
+            });
+
             const handleExport = () => {
-                const data = {
-                    yearData,
-                    incomeData,
-                    extrasData,
-                    gamesData,
-                    creditLimits,
-                    templateData,
-                    timestamp: new Date().toISOString()
-                };
-                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const blob = new Blob([JSON.stringify(getFullDataExport(), null, 2)], {type: 'application/json'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `budget_backup_${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                a.href = url; a.download = `budget_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 setIsDataModalOpen(false);
             };
 
@@ -910,92 +1117,39 @@
                 reader.onload = (e) => {
                     try {
                         const imported = JSON.parse(e.target.result);
-                        if (imported.yearData) {
-                            setYearData(imported.yearData);
-                            if(imported.incomeData) setIncomeData(imported.incomeData);
-                            if(imported.extrasData) setExtrasData(imported.extrasData);
-                            if(imported.gamesData) setGamesData(imported.gamesData);
-                            if(imported.creditLimits) setCreditLimits(imported.creditLimits);
-                            if(imported.templateData) setTemplateData(imported.templateData);
-                            
-                            saveDataToStorage(
-                                imported.yearData, 
-                                imported.incomeData, 
-                                imported.extrasData, 
-                                imported.gamesData, 
-                                imported.creditLimits,
-                                imported.templateData
-                            );
-                            
-                            alert("Data imported successfully!");
-                            setIsDataModalOpen(false);
-                        } else {
-                            alert("Invalid file format. Missing year data.");
+                        if (imported.yearData) { 
+                            handleImportDataObj(imported); 
+                            setAlertMsg("Data imported successfully!"); 
+                            setIsDataModalOpen(false); 
+                        } 
+                        else { 
+                            setAlertMsg("Invalid file format. Missing year data."); 
                         }
-                    } catch (err) {
-                        alert("Error reading file: " + err.message);
+                    } catch (err) { 
+                        setAlertMsg("Error reading file: " + err.message); 
                     }
                 };
                 reader.readAsText(file);
             };
 
-            const handleUpdateIncomeList = (newItems) => {
-                const newIncomeData = { ...incomeData, [selectedMonth]: newItems };
-                saveDataToStorage(null, newIncomeData, null, null, null, null);
-            }
-
-            const handleUpdateExtrasList = (newItems) => {
-                const newExtrasData = { ...extrasData, [selectedMonth]: newItems };
-                saveDataToStorage(null, null, newExtrasData, null, null, null);
-            }
-
-            const handleUpdateGamesList = (newItems) => {
-                const newGamesData = { ...gamesData, [selectedMonth]: newItems };
-                saveDataToStorage(null, null, null, newGamesData, null, null);
-            }
-
-            const handleUpdateTemplateList = (newItems) => {
-                saveDataToStorage(null, null, null, null, null, newItems);
-            }
-
-            const handleUpdateLimits = (newLimits) => {
-                setCreditLimits(newLimits);
-                saveDataToStorage(null, null, null, null, newLimits, null);
-            }
+            const handleUpdateIncomeList = (newItems) => saveDataToStorage(null, { ...incomeData, [selectedMonth]: newItems }, null, null, null, null);
+            const handleUpdateExtrasList = (newItems) => saveDataToStorage(null, null, { ...extrasData, [selectedMonth]: newItems }, null, null, null);
+            const handleUpdateGamesList = (newItems) => saveDataToStorage(null, null, null, { ...gamesData, [selectedMonth]: newItems }, null, null);
+            const handleUpdateTemplateList = (newItems) => saveDataToStorage(null, null, null, null, null, newItems);
+            const handleUpdateLimits = (newLimits) => { setCreditLimits(newLimits); saveDataToStorage(null, null, null, null, newLimits, null); };
 
             const handleUpdateItem = (id, field, value) => {
-                const currentItems = yearData[selectedMonth] || [];
-                const updatedItems = currentItems.map(item => item.id === id ? { ...item, [field]: value } : item);
+                const updatedItems = (yearData[selectedMonth] || []).map(item => item.id === id ? { ...item, [field]: value } : item);
                 saveDataToStorage({ ...yearData, [selectedMonth]: updatedItems }, null, null, null, null, null);
             };
 
             const handleAddItem = () => {
-                const newItem = {
-                    id: generateId(),
-                    name: 'New Expense',
-                    day: '',
-                    status: 'pending',
-                    priority: 'low',
-                    paymentMethod: 'cash', 
-                    expected: 0,
-                    actual: 0,
-                    repaymentType: null 
-                };
+                const newItem = { id: generateId(), name: 'New Expense', day: '', status: 'pending', priority: 'low', paymentMethod: 'cash', expected: 0, actual: 0, repaymentType: null };
                 saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null, null, null);
             };
 
             const handleAddBill = (type, amount, prevMonthName) => {
-                const newItem = {
-                    id: generateId(),
-                    name: `${type === 'maya' ? 'Maya' : 'UnionBank'} Bill (${prevMonthName})`,
-                    day: 'Due',
-                    status: 'pending',
-                    priority: 'high',
-                    paymentMethod: 'cash', 
-                    expected: amount,
-                    actual: 0,
-                    repaymentType: type 
-                };
+                const newItem = { id: generateId(), name: `${type === 'maya' ? 'Maya' : 'UnionBank'} Bill (${prevMonthName})`, day: 'Due', status: 'pending', priority: 'high', paymentMethod: 'cash', expected: amount, actual: 0, repaymentType: type };
                 saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), newItem] }, null, null, null, null, null);
             };
 
@@ -1010,18 +1164,10 @@
                 else if (currentStatus === 'ready') nextStatus = 'paid';
                 else if (currentStatus === 'paid') nextStatus = 'pending';
                 
-                const currentItems = yearData[selectedMonth] || [];
-                const updatedItems = currentItems.map(item => {
+                const updatedItems = (yearData[selectedMonth] || []).map(item => {
                     if (item.id === id) {
-                        let updates = { 
-                            status: nextStatus,
-                            isPaid: nextStatus === 'paid'
-                        };
-                        
-                        if (nextStatus === 'paid' && item.repaymentType && (!item.actual || item.actual === 0)) {
-                            updates.actual = item.expected;
-                        }
-                        
+                        let updates = { status: nextStatus, isPaid: nextStatus === 'paid' };
+                        if (nextStatus === 'paid' && item.repaymentType && (!item.actual || item.actual === 0)) { updates.actual = item.expected; }
                         return { ...item, ...updates };
                     }
                     return item;
@@ -1047,78 +1193,107 @@
 
             const moveItem = (index, direction) => {
                 const items = [...(yearData[selectedMonth] || [])];
-                if (direction === 'up' && index > 0) {
-                    [items[index], items[index - 1]] = [items[index - 1], items[index]];
-                } else if (direction === 'down' && index < items.length - 1) {
-                    [items[index], items[index + 1]] = [items[index + 1], items[index]];
-                }
+                if (direction === 'up' && index > 0) { [items[index], items[index - 1]] = [items[index - 1], items[index]]; } 
+                else if (direction === 'down' && index < items.length - 1) { [items[index], items[index + 1]] = [items[index + 1], items[index]]; }
                 saveDataToStorage({ ...yearData, [selectedMonth]: items }, null, null, null, null, null);
             };
 
-            // NEW: Load Template Logic
             const handleLoadTemplate = () => {
-                if (!templateData || templateData.length === 0) {
-                    alert("Your template is empty. Click 'Edit Template' to add items first.");
-                    return;
+                if (!templateData || templateData.length === 0) { 
+                    setAlertMsg("Your template is empty. Click 'Edit Template' to add items first."); 
+                    return; 
                 }
+                const newItems = templateData.map(item => ({ id: generateId(), name: item.name || '', day: item.day || '', status: 'pending', priority: item.priority || 'low', paymentMethod: item.paymentMethod || 'cash', expected: item.expected || 0, actual: 0, repaymentType: null }));
+                saveDataToStorage({ ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), ...newItems] }, null, null, null, null, null);
+            };
+
+            const handleCopyMonth = () => {
+                const items = yearData[selectedMonth] || [];
+                const incomeItems = incomeData[selectedMonth] || [];
+                const extraItems = extrasData[selectedMonth] || [];
+                const gameItems = gamesData[selectedMonth] || [];
                 
-                const newItems = templateData.map(item => ({
-                    id: generateId(),
-                    name: item.name || '',
+                if (items.length === 0 && incomeItems.length === 0 && extraItems.length === 0 && gameItems.length === 0) return;
+                
+                const itemsToCopy = items.map(item => ({
+                    name: item.name,
                     day: item.day || '',
                     status: 'pending',
                     priority: item.priority || 'low',
                     paymentMethod: item.paymentMethod || 'cash', 
-                    expected: item.expected || 0,
+                    expected: item.expected,
                     actual: 0,
-                    repaymentType: null
+                    repaymentType: item.repaymentType || null
                 }));
-
-                const currentItems = yearData[selectedMonth] || [];
-                const mergedItems = [...currentItems, ...newItems];
-
-                saveDataToStorage({ ...yearData, [selectedMonth]: mergedItems }, null, null, null, null, null);
+                const incomeToCopy = incomeItems.map(inc => ({ name: inc.name, amount: inc.amount }));
+                const extrasToCopy = extraItems.map(ext => ({ name: ext.name, amount: ext.amount, paymentMethod: ext.paymentMethod }));
+                const gamesToCopy = gameItems.map(g => ({ name: g.name, amount: g.amount, paymentMethod: g.paymentMethod }));
+                
+                const clipboardData = { 
+                    source: selectedMonth, 
+                    items: itemsToCopy, 
+                    incomeItems: incomeToCopy, 
+                    extrasItems: extrasToCopy,
+                    gamesItems: gamesToCopy
+                };
+                
+                localStorage.setItem('budget_clipboard', JSON.stringify(clipboardData));
+                setClipboard(clipboardData);
+                setCopyStatus('copied');
+                setTimeout(() => setCopyStatus(''), 2000);
             };
 
-            // --- SORTING LOGIC ---
+            const handlePasteMonth = () => {
+                if (!clipboard) return;
+                let newData = null;
+                let newIncomeData = null;
+                let newExtrasData = null;
+                let newGamesData = null;
+
+                if (clipboard.items && clipboard.items.length > 0) {
+                    const newItems = clipboard.items.map(item => ({ ...item, id: generateId() }));
+                    newData = { ...yearData, [selectedMonth]: [...(yearData[selectedMonth] || []), ...newItems] };
+                }
+                const currentIncome = incomeData[selectedMonth] || [];
+                if (clipboard.incomeItems && clipboard.incomeItems.length > 0 && currentIncome.length === 0) {
+                     const newIncomeItems = clipboard.incomeItems.map(inc => ({ id: generateId(), name: inc.name, amount: inc.amount }));
+                    newIncomeData = { ...incomeData, [selectedMonth]: newIncomeItems };
+                }
+                const currentExtras = extrasData[selectedMonth] || [];
+                if (clipboard.extrasItems && clipboard.extrasItems.length > 0 && currentExtras.length === 0) {
+                    const newExtrasItems = clipboard.extrasItems.map(ext => ({ id: generateId(), name: ext.name, amount: ext.amount, paymentMethod: ext.paymentMethod }));
+                    newExtrasData = { ...extrasData, [selectedMonth]: newExtrasItems };
+                }
+                const currentGames = gamesData[selectedMonth] || [];
+                if (clipboard.gamesItems && clipboard.gamesItems.length > 0 && currentGames.length === 0) {
+                    const newGamesItems = clipboard.gamesItems.map(g => ({ id: generateId(), name: g.name, amount: g.amount, paymentMethod: g.paymentMethod }));
+                    newGamesData = { ...gamesData, [selectedMonth]: newGamesItems };
+                }
+
+                if (newData || newIncomeData || newExtrasData || newGamesData) {
+                    saveDataToStorage(newData, newIncomeData, newExtrasData, newGamesData, null, null);
+                    setCopyStatus('pasted');
+                    setTimeout(() => setCopyStatus(''), 2000);
+                }
+            };
+
             const requestSort = (key) => {
                 let direction = 'asc';
-                if (sortConfig.key === key && sortConfig.direction === 'asc') {
-                    direction = 'desc';
-                } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
-                    direction = null; 
-                }
+                if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
+                else if (sortConfig.key === key && sortConfig.direction === 'desc') direction = null; 
                 setSortConfig({ key: direction ? key : null, direction });
             };
 
             const rawItems = yearData[selectedMonth] || [];
-            
             const sortedItems = useMemo(() => {
                 let items = [...rawItems];
                 if (sortConfig.key && sortConfig.direction) {
                     items.sort((a, b) => {
                         let valA, valB;
-                        if (sortConfig.key === 'status') {
-                            const map = { pending: 1, ready: 2, paid: 3 };
-                            valA = map[a.status || (a.isPaid ? 'paid' : 'pending')] || 1;
-                            valB = map[b.status || (b.isPaid ? 'paid' : 'pending')] || 1;
-                        } else if (sortConfig.key === 'priority') {
-                            const map = { high: 3, medium: 2, low: 1 };
-                            valA = map[a.priority || 'low'] || 1;
-                            valB = map[b.priority || 'low'] || 1;
-                        } else if (sortConfig.key === 'paymentMethod') {
-                            valA = a.paymentMethod || 'cash';
-                            valB = b.paymentMethod || 'cash';
-                        } else if (sortConfig.key === 'day') {
-                            const numA = parseInt(a.day);
-                            const numB = parseInt(b.day);
-                            if (!isNaN(numA) && !isNaN(numB)) {
-                                valA = numA; valB = numB;
-                            } else {
-                                valA = a.day || ''; valB = b.day || '';
-                            }
-                        }
-                        
+                        if (sortConfig.key === 'status') { const map = { pending: 1, ready: 2, paid: 3 }; valA = map[a.status || (a.isPaid ? 'paid' : 'pending')] || 1; valB = map[b.status || (b.isPaid ? 'paid' : 'pending')] || 1; } 
+                        else if (sortConfig.key === 'priority') { const map = { high: 3, medium: 2, low: 1 }; valA = map[a.priority || 'low'] || 1; valB = map[b.priority || 'low'] || 1; } 
+                        else if (sortConfig.key === 'paymentMethod') { valA = a.paymentMethod || 'cash'; valB = b.paymentMethod || 'cash'; } 
+                        else if (sortConfig.key === 'day') { const numA = parseInt(a.day); const numB = parseInt(b.day); if (!isNaN(numA) && !isNaN(numB)) { valA = numA; valB = numB; } else { valA = a.day || ''; valB = b.day || ''; } }
                         if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
                         if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
                         return 0;
@@ -1138,11 +1313,7 @@
             const totalGamesAmount = currentGames.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
             const globalCreditStats = useMemo(() => {
-                let mayaUsed = 0;
-                let unionUsed = 0;
-                let mayaPaid = 0;
-                let unionPaid = 0;
-
+                let mayaUsed = 0, unionUsed = 0, mayaPaid = 0, unionPaid = 0;
                 Object.values(yearData).forEach(monthItems => {
                     monthItems.forEach(item => {
                         const actual = Number(item.actual) || 0;
@@ -1152,7 +1323,6 @@
                         if (item.repaymentType === 'unionbank') unionPaid += actual;
                     });
                 });
-
                 Object.values(extrasData).forEach(monthExtras => {
                     monthExtras.forEach(item => {
                         const amount = Number(item.amount) || 0;
@@ -1160,7 +1330,6 @@
                         if (item.paymentMethod === 'unionbank') unionUsed += amount;
                     });
                 });
-
                 Object.values(gamesData).forEach(monthGames => {
                     monthGames.forEach(item => {
                         const amount = Number(item.amount) || 0;
@@ -1168,11 +1337,7 @@
                         if (item.paymentMethod === 'unionbank') unionUsed += amount;
                     });
                 });
-
-                return {
-                    mayaTotal: Math.max(0, mayaUsed - mayaPaid),
-                    unionTotal: Math.max(0, unionUsed - unionPaid)
-                };
+                return { mayaTotal: Math.max(0, mayaUsed - mayaPaid), unionTotal: Math.max(0, unionUsed - unionPaid) };
             }, [yearData, extrasData, gamesData]);
 
             const prevMonthAlerts = useMemo(() => {
@@ -1184,64 +1349,47 @@
                 const prevExtras = extrasData[prevMonthName] || [];
                 const prevGames = gamesData[prevMonthName] || [];
                 
-                let prevMayaSpend = 0;
-                let prevUnionSpend = 0;
-
+                let prevMayaSpend = 0, prevUnionSpend = 0;
                 prevItems.forEach(item => {
                     if (item.paymentMethod === 'maya') prevMayaSpend += (Number(item.actual) || 0);
                     if (item.paymentMethod === 'unionbank') prevUnionSpend += (Number(item.actual) || 0);
                 });
-
                 prevExtras.forEach(item => {
                     if (item.paymentMethod === 'maya') prevMayaSpend += (Number(item.amount) || 0);
                     if (item.paymentMethod === 'unionbank') prevUnionSpend += (Number(item.amount) || 0);
                 });
-
                 prevGames.forEach(item => {
                     if (item.paymentMethod === 'maya') prevMayaSpend += (Number(item.amount) || 0);
                     if (item.paymentMethod === 'unionbank') prevUnionSpend += (Number(item.amount) || 0);
                 });
 
-                // FIX for string matching crash on blank names
                 const hasMayaBill = rawItems.some(i => i.repaymentType === 'maya' && String(i.name || '').includes(prevMonthName));
                 const hasUnionBill = rawItems.some(i => i.repaymentType === 'unionbank' && String(i.name || '').includes(prevMonthName));
 
-                return {
-                    maya: hasMayaBill ? 0 : prevMayaSpend,
-                    union: hasUnionBill ? 0 : prevUnionSpend,
-                    prevMonth: prevMonthName
-                };
+                return { maya: hasMayaBill ? 0 : prevMayaSpend, union: hasUnionBill ? 0 : prevUnionSpend, prevMonth: prevMonthName };
             }, [selectedMonth, yearData, extrasData, gamesData, rawItems]);
 
             const totals = useMemo(() => {
                 const mainTotals = currentItems.reduce((acc, item) => {
                     const actual = (Number(item.actual) || 0);
                     const method = item.paymentMethod || 'cash';
-                    
-                    let newAcc = {
+                    return {
                         expected: acc.expected + (Number(item.expected) || 0),
                         actual: acc.actual + (method === 'cash' ? actual : 0), 
                         cashFlow: acc.cashFlow + (method === 'cash' ? actual : 0)
                     };
-                    return newAcc;
                 }, { expected: 0, actual: 0, cashFlow: 0 });
 
                 const extrasTotals = currentExtras.reduce((acc, item) => {
                     const amount = Number(item.amount) || 0;
                     const method = item.paymentMethod || 'cash';
-                    return {
-                        actual: acc.actual + (method === 'cash' ? amount : 0),
-                        cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0)
-                    };
+                    return { actual: acc.actual + (method === 'cash' ? amount : 0), cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0) };
                 }, { actual: 0, cashFlow: 0 });
 
                 const gamesTotals = currentGames.reduce((acc, item) => {
                     const amount = Number(item.amount) || 0;
                     const method = item.paymentMethod || 'cash';
-                    return {
-                        actual: acc.actual + (method === 'cash' ? amount : 0),
-                        cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0)
-                    };
+                    return { actual: acc.actual + (method === 'cash' ? amount : 0), cashFlow: acc.cashFlow + (method === 'cash' ? amount : 0) };
                 }, { actual: 0, cashFlow: 0 });
 
                 return {
@@ -1253,27 +1401,31 @@
 
             const cashRemaining = currentTotalIncome - totals.cashFlow;
 
-            if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="text-center animate-pulse"><div className="text-indigo-600 font-bold text-xl mb-2">Budget Planner</div><p className="text-slate-500">Loading...</p></div></div>;
+            if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-950"><div className="text-center animate-pulse"><div className="text-indigo-400 font-bold text-xl mb-2">Budget Planner</div><p className="text-slate-500">Loading...</p></div></div>;
+
+            if (!isConfigured) {
+                return <SetupScreen onComplete={() => setIsConfigured(true)} onImportData={handleImportDataObj} />;
+            }
 
             return (
-                <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
-                    <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
+                <div className="min-h-screen bg-slate-950 font-sans text-slate-100 pb-20">
+                    <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-20">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <div className="flex justify-between items-center h-16">
-                                <div className="flex items-center gap-3"><div className="bg-indigo-600 p-2 rounded-lg"><Icons.Calendar className="w-5 h-5 text-white" /></div><h1 className="text-xl font-bold text-slate-900">2026 Budget</h1></div>
+                                <div className="flex items-center gap-3"><div className="bg-indigo-600 p-2 rounded-lg"><Icons.Calendar className="w-5 h-5 text-white" /></div><h1 className="text-xl font-bold text-slate-100">2026 Budget</h1></div>
                                 <div className="flex items-center gap-2">
-                                    <button type="button" onClick={togglePrivacy} className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors" title={isPrivacyMode ? "Show Data" : "Hide Data"}>{isPrivacyMode ? <Icons.EyeOff size={18} /> : <Icons.Eye size={18} />}</button>
-                                    <button type="button" onClick={() => setIsDataModalOpen(true)} className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors" title="Backup/Restore Data"><Icons.Database size={18} /></button>
-                                    {saving ? <span className="text-xs text-slate-400 flex items-center gap-1">Saving...</span> : <span className="text-xs text-emerald-500 flex items-center gap-1 font-medium"><Icons.Save className="w-3 h-3" /> Saved</span>}
+                                    <button type="button" onClick={() => setIsGistModalOpen(true)} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors" title="GitHub Sync Settings"><Icons.Github size={18} /></button>
+                                    <SyncManager fullData={getFullDataExport()} />
+                                    <button type="button" onClick={togglePrivacy} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors" title={isPrivacyMode ? "Show Data" : "Hide Data"}>{isPrivacyMode ? <Icons.EyeOff size={18} /> : <Icons.Eye size={18} />}</button>
+                                    <button type="button" onClick={() => setIsDataModalOpen(true)} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors" title="Local Backup/Restore"><Icons.Database size={18} /></button>
+                                    {saving && <span className="text-xs text-slate-500 flex items-center gap-1 ml-2">Saving...</span>}
                                 </div>
                             </div>
                             <div className="flex overflow-x-auto no-scrollbar -mb-px pt-2 gap-1 pb-2 md:pb-0">
                                 {MONTHS.map(month => (
                                     <button 
-                                        key={month} 
-                                        type="button"
-                                        onClick={() => setSelectedMonth(month)} 
-                                        className={`whitespace-nowrap flex-shrink-0 px-4 py-2 border-b-2 text-sm font-medium transition-colors touch-manipulation ${selectedMonth === month ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+                                        key={month} type="button" onClick={() => setSelectedMonth(month)} 
+                                        className={`whitespace-nowrap flex-shrink-0 px-4 py-2 border-b-2 text-sm font-medium transition-colors touch-manipulation ${selectedMonth === month ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-700'}`}
                                     >
                                         {month}
                                     </button>
@@ -1284,8 +1436,8 @@
 
                     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <YearlyAnalytics yearData={yearData} incomeData={incomeData} extrasData={extrasData} gamesData={gamesData} isPrivacyMode={isPrivacyMode} />
-                        <div className="h-px bg-slate-200 mb-8"></div>
-                        <div className="flex items-center gap-2 mb-6"><h2 className="text-xl font-bold text-slate-800">{selectedMonth} Details</h2></div>
+                        <div className="h-px bg-slate-800 mb-8"></div>
+                        <div className="flex items-center gap-2 mb-6"><h2 className="text-xl font-bold text-slate-200">{selectedMonth} Details</h2></div>
                         
                         {prevMonthAlerts.maya > 0 && (<BillAlert type="maya" amount={prevMonthAlerts.maya} month={prevMonthAlerts.prevMonth} onAdd={() => handleAddBill('maya', prevMonthAlerts.maya, prevMonthAlerts.prevMonth)} />)}
                         {prevMonthAlerts.union > 0 && (<BillAlert type="unionbank" amount={prevMonthAlerts.union} month={prevMonthAlerts.prevMonth} onAdd={() => handleAddBill('unionbank', prevMonthAlerts.union, prevMonthAlerts.prevMonth)} />)}
@@ -1293,65 +1445,47 @@
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             <StatCard title="Total Income" amount={currentTotalIncome} type="income" icon={Icons.Wallet} onEdit={() => setIsIncomeModalOpen(true)} isPrivacyMode={isPrivacyMode} />
                             <StatCard title="Cash on Hand" amount={cashRemaining} type="balance" icon={cashRemaining >= 0 ? Icons.TrendingUp : Icons.TrendingDown} isPrivacyMode={isPrivacyMode} />
-                            <CreditCardWidget 
-                                title="Maya Credit" 
-                                used={globalCreditStats.mayaTotal} 
-                                limit={creditLimits.maya} 
-                                icon={Icons.Smartphone} 
-                                colorClass="text-slate-900" 
-                                barColorClass="bg-slate-800" 
-                                onEdit={() => setIsLimitModalOpen(true)}
-                                isPrivacyMode={isPrivacyMode}
-                            />
-                            <CreditCardWidget 
-                                title="UnionBank" 
-                                used={globalCreditStats.unionTotal} 
-                                limit={creditLimits.unionbank} 
-                                icon={Icons.CreditCard} 
-                                colorClass="text-orange-500" 
-                                barColorClass="bg-orange-500" 
-                                onEdit={() => setIsLimitModalOpen(true)}
-                                isPrivacyMode={isPrivacyMode}
-                            />
+                            <CreditCardWidget title="Maya Credit" used={globalCreditStats.mayaTotal} limit={creditLimits.maya} icon={Icons.Smartphone} colorClass="text-slate-100" barColorClass="bg-slate-400" onEdit={() => setIsLimitModalOpen(true)} isPrivacyMode={isPrivacyMode} />
+                            <CreditCardWidget title="UnionBank" used={globalCreditStats.unionTotal} limit={creditLimits.unionbank} icon={Icons.CreditCard} colorClass="text-orange-500" barColorClass="bg-orange-500" onEdit={() => setIsLimitModalOpen(true)} isPrivacyMode={isPrivacyMode} />
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div className="lg:col-span-2 space-y-6">
-                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 gap-4 sm:gap-0">
-                                        <h2 className="text-lg font-semibold text-slate-800">{selectedMonth} Expenses</h2>
+                                <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden">
+                                    <div className="px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950 gap-4 sm:gap-0">
+                                        <h2 className="text-lg font-semibold text-slate-200">{selectedMonth} Expenses</h2>
                                         <div className="flex items-center gap-2">
-                                            {/* REPLACED: Copy/Paste with Edit Template / Load Template */}
-                                            <button type="button" onClick={() => setIsTemplateModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:text-indigo-600 text-sm font-medium rounded-lg transition-colors">
-                                                <Icons.FileText size={16} /> <span className="hidden sm:inline">Edit Template</span>
+                                            <button type="button" onClick={handleCopyMonth} className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${(currentItems.length === 0 && currentTotalIncome === 0) ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-indigo-400'}`}>{copyStatus === 'copied' ? <Icons.Check size={16} className="text-emerald-500"/> : <Icons.Copy size={16} />}<span className="hidden sm:inline">Copy</span></button>
+                                            {clipboard && (<button type="button" onClick={handlePasteMonth} className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 text-indigo-400 border border-indigo-500/30 hover:bg-slate-800/80 hover:border-indigo-500/50 text-sm font-medium rounded-lg transition-colors">{copyStatus === 'pasted' ? <Icons.Check size={16} /> : <Icons.ClipboardPaste size={16} />}<span className="hidden sm:inline">Paste</span></button>)}
+                                            <button type="button" onClick={() => setIsTemplateModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-indigo-400 text-sm font-medium rounded-lg transition-colors">
+                                                <Icons.FileText size={16} /> <span className="hidden sm:inline">Template</span>
                                             </button>
-                                            <button type="button" onClick={handleLoadTemplate} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 text-sm font-medium rounded-lg transition-colors">
-                                                <Icons.ClipboardPaste size={16} /> <span className="hidden sm:inline">Load Template</span>
+                                            <button type="button" onClick={handleLoadTemplate} className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 text-indigo-400 border border-indigo-500/30 hover:bg-slate-800/80 hover:border-indigo-500/50 text-sm font-medium rounded-lg transition-colors">
+                                                <Icons.CloudDownload size={16} /> <span className="hidden sm:inline">Load</span>
                                             </button>
-
-                                            <button type="button" onClick={() => setIsExtrasModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-amber-300 text-amber-600 hover:bg-amber-50 text-sm font-medium rounded-lg transition-colors ml-2"><Icons.ListPlus size={16} /> <span className="hidden sm:inline">Extras</span></button>
-                                            <button type="button" onClick={() => setIsGamesModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-purple-300 text-purple-600 hover:bg-purple-50 text-sm font-medium rounded-lg transition-colors ml-2"><Icons.Gamepad2 size={16} /> <span className="hidden sm:inline">Games</span></button>
+                                            <button type="button" onClick={() => setIsExtrasModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 border border-amber-500/30 text-amber-500 hover:bg-slate-800/80 hover:border-amber-500/50 text-sm font-medium rounded-lg transition-colors ml-2"><Icons.ListPlus size={16} /> <span className="hidden sm:inline">Extras</span></button>
+                                            <button type="button" onClick={() => setIsGamesModalOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 border border-purple-500/30 text-purple-400 hover:bg-slate-800/80 hover:border-purple-500/50 text-sm font-medium rounded-lg transition-colors ml-2"><Icons.Gamepad2 size={16} /> <span className="hidden sm:inline">Games</span></button>
                                             <button type="button" onClick={handleAddItem} className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors ml-2"><Icons.Plus size={16} /> <span className="hidden sm:inline">Add Item</span><span className="sm:hidden">Add</span></button>
                                         </div>
                                     </div>
 
                                     {currentItems.length === 0 && currentExtras.length === 0 && currentGames.length === 0 ? (
-                                        <div className="p-12 text-center text-slate-400 flex flex-col items-center"><div className="bg-slate-100 p-4 rounded-full mb-4"><Icons.DollarSign className="w-6 h-6 text-slate-400" /></div><p className="text-lg font-medium text-slate-600">No expenses yet</p></div>
+                                        <div className="p-12 text-center text-slate-500 flex flex-col items-center"><div className="bg-slate-800 p-4 rounded-full mb-4"><Icons.DollarSign className="w-6 h-6 text-slate-500" /></div><p className="text-lg font-medium text-slate-400">No expenses yet</p></div>
                                     ) : (
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left border-collapse">
                                                 <thead>
-                                                    <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                                                        <th className={`px-3 py-3 font-semibold w-8 text-center cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'status' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('status')}>
+                                                    <tr className="bg-slate-950 text-slate-500 text-xs uppercase tracking-wider">
+                                                        <th className={`px-3 py-3 font-semibold w-8 text-center cursor-pointer select-none hover:bg-slate-800/50 ${sortConfig.key === 'status' ? 'bg-slate-800/50 text-indigo-400' : ''}`} onClick={() => requestSort('status')}>
                                                             <div className="flex items-center justify-center gap-1">Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
                                                         </th>
-                                                        <th className={`px-3 py-3 font-semibold w-10 text-center cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'priority' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('priority')}>
+                                                        <th className={`px-3 py-3 font-semibold w-10 text-center cursor-pointer select-none hover:bg-slate-800/50 ${sortConfig.key === 'priority' ? 'bg-slate-800/50 text-indigo-400' : ''}`} onClick={() => requestSort('priority')}>
                                                             <div className="flex items-center justify-center gap-1">Prio {sortConfig.key === 'priority' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
                                                         </th>
-                                                        <th className={`px-3 py-3 font-semibold w-10 text-center cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'paymentMethod' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('paymentMethod')}>
+                                                        <th className={`px-3 py-3 font-semibold w-10 text-center cursor-pointer select-none hover:bg-slate-800/50 ${sortConfig.key === 'paymentMethod' ? 'bg-slate-800/50 text-indigo-400' : ''}`} onClick={() => requestSort('paymentMethod')}>
                                                             <div className="flex items-center justify-center gap-1">Via {sortConfig.key === 'paymentMethod' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
                                                         </th>
-                                                        <th className={`px-3 py-3 font-semibold w-24 cursor-pointer select-none hover:bg-slate-100 ${sortConfig.key === 'day' ? 'bg-slate-100 text-indigo-600' : ''}`} onClick={() => requestSort('day')}>
+                                                        <th className={`px-3 py-3 font-semibold w-24 cursor-pointer select-none hover:bg-slate-800/50 ${sortConfig.key === 'day' ? 'bg-slate-800/50 text-indigo-400' : ''}`} onClick={() => requestSort('day')}>
                                                             <div className="flex items-center gap-1">Due Date {sortConfig.key === 'day' && (sortConfig.direction === 'asc' ? <Icons.ArrowUp size={12}/> : <Icons.ArrowDown size={12}/>)}</div>
                                                         </th>
                                                         <th className="px-4 py-3 font-semibold min-w-[140px]">Expense Item</th>
@@ -1361,7 +1495,7 @@
                                                         <th className="px-1 py-3 w-6"></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100">
+                                                <tbody className="divide-y divide-slate-800/50">
                                                     {currentItems.map((item, index) => {
                                                         const status = item.status || (item.isPaid ? 'paid' : 'pending');
                                                         const method = item.paymentMethod || 'cash';
@@ -1370,27 +1504,27 @@
                                                         const isRepayment = !!item.repaymentType;
                                                         
                                                         let statusIcon = <Icons.Circle size={18} />;
-                                                        let statusClass = "bg-slate-100 text-slate-400 hover:bg-slate-200";
+                                                        let statusClass = "bg-slate-800 text-slate-500 hover:bg-slate-700";
                                                         if (status === 'ready') {
                                                             statusIcon = <Icons.Wallet size={18} />;
-                                                            statusClass = "bg-blue-100 text-blue-600 hover:bg-blue-200";
+                                                            statusClass = "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30";
                                                         } else if (status === 'paid') {
                                                             statusIcon = <Icons.CheckCircle size={18} />;
-                                                            statusClass = "bg-emerald-100 text-emerald-600 hover:bg-emerald-200";
+                                                            statusClass = "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30";
                                                         }
 
                                                         let methodIcon = <Icons.Banknote size={18} />;
-                                                        let methodClass = "bg-slate-100 text-slate-400 hover:bg-slate-200";
+                                                        let methodClass = "bg-slate-800 text-slate-400 hover:bg-slate-700";
                                                         if (method === 'maya') {
                                                             methodIcon = <Icons.Smartphone size={18} />;
-                                                            methodClass = "bg-slate-800 text-white hover:bg-slate-700";
+                                                            methodClass = "bg-slate-950 border border-slate-800 text-slate-200";
                                                         } else if (method === 'unionbank') {
                                                             methodIcon = <Icons.CreditCard size={18} />;
-                                                            methodClass = "bg-orange-100 text-orange-600 hover:bg-orange-200";
+                                                            methodClass = "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30";
                                                         }
 
                                                         return (
-                                                            <tr key={item.id} className={`group hover:bg-slate-50 transition-colors ${status === 'paid' ? 'bg-slate-50/50' : ''} ${isRepayment ? 'bg-indigo-50/30' : ''}`}>
+                                                            <tr key={item.id} className={`group hover:bg-slate-800/50 transition-colors ${status === 'paid' ? 'bg-slate-900/50' : ''} ${isRepayment ? 'bg-indigo-500/10' : ''}`}>
                                                                 <td className="px-3 py-2 text-center">
                                                                     <button type="button" onClick={() => cycleStatus(item.id, status)} className={`p-1.5 rounded-full transition-all ${statusClass}`} title="Toggle: Pending -> Ready -> Paid">{statusIcon}</button>
                                                                 </td>
@@ -1399,28 +1533,28 @@
                                                                 </td>
                                                                 <td className="px-3 py-2 text-center">
                                                                     {!isRepayment && <button type="button" onClick={() => cyclePaymentMethod(item.id, method)} className={`p-1.5 rounded-md transition-all ${methodClass}`}>{methodIcon}</button>}
-                                                                    {isRepayment && <div className="p-1.5 rounded-md bg-indigo-100 text-indigo-600 flex justify-center"><Icons.RefreshCw size={18} /></div>}
+                                                                    {isRepayment && <div className="p-1.5 rounded-md bg-indigo-500/20 text-indigo-400 flex justify-center"><Icons.RefreshCw size={18} /></div>}
                                                                 </td>
                                                                 <td className="px-3 py-2">
-                                                                    <input type="text" value={item.day || ''} onChange={(e) => handleUpdateItem(item.id, 'day', e.target.value)} placeholder="Due" className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-600 text-xs text-center font-medium placeholder-slate-300"/>
+                                                                    <input type="text" value={item.day || ''} onChange={(e) => handleUpdateItem(item.id, 'day', e.target.value)} placeholder="Due" className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-400 text-xs text-center font-medium placeholder-slate-600"/>
                                                                 </td>
                                                                 <td className="px-4 py-2">
-                                                                    <input type="text" value={item.name} onChange={(e) => handleUpdateItem(item.id, 'name', e.target.value)} placeholder="Rent, Groceries..." className={`w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-700 placeholder-slate-400 font-medium ${status === 'paid' ? 'text-slate-500' : ''} ${isRepayment ? 'font-bold text-indigo-900' : ''} ${isPrivacyMode ? 'privacy-blur' : ''}`}/>
+                                                                    <input type="text" value={item.name} onChange={(e) => handleUpdateItem(item.id, 'name', e.target.value)} placeholder="Rent, Groceries..." className={`w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 px-0 py-1 text-slate-200 placeholder-slate-600 font-medium ${status === 'paid' ? 'text-slate-500' : ''} ${isRepayment ? 'font-bold text-indigo-400' : ''} ${isPrivacyMode ? 'privacy-blur' : ''}`}/>
                                                                 </td>
                                                                 <td className="px-4 py-2">
-                                                                    <div className={`relative ${isPrivacyMode ? 'privacy-blur' : ''}`}><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₱</span><input type="number" value={item.expected} onChange={(e) => handleUpdateItem(item.id, 'expected', parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 pl-3 py-1 text-right text-slate-700 font-mono text-sm"/></div>
+                                                                    <div className={`relative ${isPrivacyMode ? 'privacy-blur' : ''}`}><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-500 text-xs">₱</span><input type="number" value={item.expected} onChange={(e) => handleUpdateItem(item.id, 'expected', parseFloat(e.target.value) || 0)} className="w-full bg-transparent border-0 border-b border-transparent focus:border-indigo-500 focus:ring-0 pl-3 py-1 text-right text-slate-300 font-mono text-sm"/></div>
                                                                 </td>
                                                                 <td className="px-4 py-2">
-                                                                    <div className={`relative ${isPrivacyMode ? 'privacy-blur' : ''}`}><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₱</span>
-                                                                        <input type="number" value={item.actual} onChange={(e) => handleUpdateItem(item.id, 'actual', parseFloat(e.target.value) || 0)} className={`w-full bg-transparent border-0 border-b border-transparent focus:ring-0 pl-3 py-1 text-right font-mono text-sm ${method === 'maya' || method === 'unionbank' ? 'text-orange-600 font-bold' : isRepayment ? 'text-emerald-600 font-bold' : 'text-slate-700'}`}/>
+                                                                    <div className={`relative ${isPrivacyMode ? 'privacy-blur' : ''}`}><span className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-500 text-xs">₱</span>
+                                                                        <input type="number" value={item.actual} onChange={(e) => handleUpdateItem(item.id, 'actual', parseFloat(e.target.value) || 0)} className={`w-full bg-transparent border-0 border-b border-transparent focus:ring-0 pl-3 py-1 text-right font-mono text-sm ${method === 'maya' || method === 'unionbank' ? 'text-orange-400 font-bold' : isRepayment ? 'text-emerald-400 font-bold' : 'text-slate-200'}`}/>
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-2 py-2 text-right"><button type="button" onClick={() => handleDeleteItem(item.id)} className="text-slate-300 hover:text-rose-500 transition-colors p-1"><Icons.Trash2 size={16} /></button></td>
+                                                                <td className="px-2 py-2 text-right"><button type="button" onClick={() => handleDeleteItem(item.id)} className="text-slate-600 hover:text-rose-400 transition-colors p-1"><Icons.Trash2 size={16} /></button></td>
                                                                 <td className="px-1 py-2 flex flex-col justify-center gap-1">
                                                                     {!sortConfig.key && (
                                                                         <>
-                                                                            {index > 0 && <button type="button" onClick={() => moveItem(index, 'up')} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"><Icons.ArrowUp size={14}/></button>}
-                                                                            {index < currentItems.length - 1 && <button type="button" onClick={() => moveItem(index, 'down')} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"><Icons.ArrowDown size={14}/></button>}
+                                                                            {index > 0 && <button type="button" onClick={() => moveItem(index, 'up')} className="text-slate-600 hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"><Icons.ArrowUp size={14}/></button>}
+                                                                            {index < currentItems.length - 1 && <button type="button" onClick={() => moveItem(index, 'down')} className="text-slate-600 hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"><Icons.ArrowDown size={14}/></button>}
                                                                         </>
                                                                     )}
                                                                 </td>
@@ -1429,51 +1563,51 @@
                                                     })}
                                                     {/* EXTRAS SUMMARY ROW */}
                                                     {currentExtras.length > 0 && (
-                                                        <tr className="bg-amber-50/50 hover:bg-amber-50 cursor-pointer" onClick={() => setIsExtrasModalOpen(true)}>
+                                                        <tr className="bg-amber-500/5 hover:bg-amber-500/10 cursor-pointer" onClick={() => setIsExtrasModalOpen(true)}>
                                                             <td className="px-3 py-2 text-center">
-                                                                <div className="p-1.5 rounded-full bg-amber-100 text-amber-600 mx-auto w-min"><Icons.CheckCircle size={18} /></div>
+                                                                <div className="p-1.5 rounded-full bg-amber-500/20 text-amber-500 mx-auto w-min"><Icons.CheckCircle size={18} /></div>
                                                             </td>
                                                             <td className="px-3 py-2 text-center">
-                                                                <div className="p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border border-slate-200 text-slate-400 bg-white mx-auto flex items-center justify-center">-</div>
+                                                                <div className="p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border border-slate-700 text-slate-500 bg-slate-900 mx-auto flex items-center justify-center">-</div>
                                                             </td>
                                                             <td className="px-3 py-2 text-center">
-                                                                <div className="p-1.5 rounded-md bg-amber-100 text-amber-600 mx-auto w-min"><Icons.Layers size={18} /></div>
+                                                                <div className="p-1.5 rounded-md bg-amber-500/20 text-amber-500 mx-auto w-min"><Icons.Layers size={18} /></div>
                                                             </td>
-                                                            <td className="px-3 py-2 text-center"><span className="text-xs text-amber-700 font-medium">--</span></td>
+                                                            <td className="px-3 py-2 text-center"><span className="text-xs text-amber-600 font-medium">--</span></td>
                                                             <td className="px-4 py-2">
-                                                                <span className="font-bold text-amber-900">Extra Expenses</span>
-                                                                <span className="text-xs text-amber-600 ml-2 font-normal">({currentExtras.length} items)</span>
+                                                                <span className="font-bold text-amber-500">Extra Expenses</span>
+                                                                <span className="text-xs text-amber-700 ml-2 font-normal">({currentExtras.length} items)</span>
                                                             </td>
-                                                            <td className="px-4 py-2 text-right"><span className="text-slate-300 text-sm">-</span></td>
-                                                            <td className="px-4 py-2 text-right"><span className={`font-bold text-amber-700 text-sm ${isPrivacyMode ? 'privacy-blur' : ''}`}>{isPrivacyMode ? '₱ ****' : `₱${totalExtrasAmount.toLocaleString()}`}</span></td>
+                                                            <td className="px-4 py-2 text-right"><span className="text-slate-600 text-sm">-</span></td>
+                                                            <td className="px-4 py-2 text-right"><span className={`font-bold text-amber-400 text-sm ${isPrivacyMode ? 'privacy-blur' : ''}`}>{isPrivacyMode ? '₱ ****' : `₱${totalExtrasAmount.toLocaleString()}`}</span></td>
                                                             <td></td>
                                                             <td></td>
                                                         </tr>
                                                     )}
                                                     {/* GAMES SUMMARY ROW */}
                                                     {currentGames.length > 0 && (
-                                                        <tr className="bg-purple-50/50 hover:bg-purple-50 cursor-pointer" onClick={() => setIsGamesModalOpen(true)}>
+                                                        <tr className="bg-purple-500/5 hover:bg-purple-500/10 cursor-pointer" onClick={() => setIsGamesModalOpen(true)}>
                                                             <td className="px-3 py-2 text-center">
-                                                                <div className="p-1.5 rounded-full bg-purple-100 text-purple-600 mx-auto w-min"><Icons.CheckCircle size={18} /></div>
+                                                                <div className="p-1.5 rounded-full bg-purple-500/20 text-purple-400 mx-auto w-min"><Icons.CheckCircle size={18} /></div>
                                                             </td>
                                                             <td className="px-3 py-2 text-center">
-                                                                <div className="p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border border-slate-200 text-slate-400 bg-white mx-auto flex items-center justify-center">-</div>
+                                                                <div className="p-1 rounded-md text-[10px] font-bold uppercase w-8 h-6 border border-slate-700 text-slate-500 bg-slate-900 mx-auto flex items-center justify-center">-</div>
                                                             </td>
                                                             <td className="px-3 py-2 text-center">
-                                                                <div className="p-1.5 rounded-md bg-purple-100 text-purple-600 mx-auto w-min"><Icons.Gamepad2 size={18} /></div>
+                                                                <div className="p-1.5 rounded-md bg-purple-500/20 text-purple-400 mx-auto w-min"><Icons.Gamepad2 size={18} /></div>
                                                             </td>
-                                                            <td className="px-3 py-2 text-center"><span className="text-xs text-purple-700 font-medium">--</span></td>
+                                                            <td className="px-3 py-2 text-center"><span className="text-xs text-purple-600 font-medium">--</span></td>
                                                             <td className="px-4 py-2">
-                                                                <span className="font-bold text-purple-900">Gaming Expenses</span>
-                                                                <span className="text-xs text-purple-600 ml-2 font-normal">({currentGames.length} items)</span>
+                                                                <span className="font-bold text-purple-400">Gaming Expenses</span>
+                                                                <span className="text-xs text-purple-700 ml-2 font-normal">({currentGames.length} items)</span>
                                                             </td>
-                                                            <td className="px-4 py-2 text-right"><span className="text-slate-300 text-sm">-</span></td>
-                                                            <td className="px-4 py-2 text-right"><span className={`font-bold text-purple-700 text-sm ${isPrivacyMode ? 'privacy-blur' : ''}`}>{isPrivacyMode ? '₱ ****' : `₱${totalGamesAmount.toLocaleString()}`}</span></td>
+                                                            <td className="px-4 py-2 text-right"><span className="text-slate-600 text-sm">-</span></td>
+                                                            <td className="px-4 py-2 text-right"><span className={`font-bold text-purple-400 text-sm ${isPrivacyMode ? 'privacy-blur' : ''}`}>{isPrivacyMode ? '₱ ****' : `₱${totalGamesAmount.toLocaleString()}`}</span></td>
                                                             <td></td>
                                                             <td></td>
                                                         </tr>
                                                     )}
-                                                    <tr className="bg-slate-50/80 font-semibold text-slate-700">
+                                                    <tr className="bg-slate-950 font-semibold text-slate-300 border-t border-slate-800">
                                                         <td colSpan="5" className="px-6 py-4">Total Cash Needed</td>
                                                         <td className="px-4 py-4 text-right font-mono text-sm">
                                                             <span className={isPrivacyMode ? 'privacy-blur' : ''}>₱{totals.expected.toLocaleString()}</span>
@@ -1492,13 +1626,25 @@
                             </div>
                             <div className="lg:col-span-1 space-y-6"><BudgetChart expected={totals.expected} actual={totals.cashFlow} isPrivacyMode={isPrivacyMode} /></div>
                         </div>
+                        
                         <IncomeModal isOpen={isIncomeModalOpen} onClose={() => setIsIncomeModalOpen(false)} month={selectedMonth} items={currentIncomeList} onUpdate={handleUpdateIncomeList} />
                         <ExtrasModal isOpen={isExtrasModalOpen} onClose={() => setIsExtrasModalOpen(false)} month={selectedMonth} items={currentExtras} onUpdate={handleUpdateExtrasList} />
                         <GamesModal isOpen={isGamesModalOpen} onClose={() => setIsGamesModalOpen(false)} month={selectedMonth} items={currentGames} onUpdate={handleUpdateGamesList} />
                         <TemplateModal isOpen={isTemplateModalOpen} onClose={() => setIsTemplateModalOpen(false)} items={templateData} onUpdate={handleUpdateTemplateList} />
                         <DataModal isOpen={isDataModalOpen} onClose={() => setIsDataModalOpen(false)} onExport={handleExport} onImport={handleImport} />
                         <LimitModal isOpen={isLimitModalOpen} onClose={() => setIsLimitModalOpen(false)} limits={creditLimits} onUpdate={handleUpdateLimits} />
-                        <UnlockModal isOpen={isUnlockModalOpen} onClose={() => setIsUnlockModalOpen(false)} onUnlock={handleUnlock} />
+                        <GistModal isOpen={isGistModalOpen} onClose={() => setIsGistModalOpen(false)} fullData={getFullDataExport()} onImportData={handleImportDataObj} />
+                    
+                        {/* CUSTOM ALERT MODAL */}
+                        {alertMsg && (
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                                <div className="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 p-6 max-w-sm w-full text-center flex flex-col items-center">
+                                    <Icons.AlertCircle className="w-12 h-12 text-indigo-400 mb-4" />
+                                    <p className="text-slate-200 mb-6 font-medium">{alertMsg}</p>
+                                    <button onClick={() => setAlertMsg('')} className="w-full bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-indigo-700 transition-colors">Understood</button>
+                                </div>
+                            </div>
+                        )}
                     </main>
                 </div>
             );
